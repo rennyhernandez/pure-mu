@@ -1,0 +1,28 @@
+$if null users
+  No users registered
+$else
+  <h2> Users
+  <table> 
+    <tr>
+      <th> Login
+      <th> First Name
+      <th> Last Name
+      <th> Email
+      <th> Phone Number
+      <th> Created At
+      <th> Options
+    $forall Entity userId user <- users
+      <tr> 
+        <td> #{userLogin user}
+        <td> #{userName user}
+        <td> #{userSurname user}
+        <td> #{userEmail user}
+        <td> #{userPhoneNo user}      
+        <td> #{show $ userCreatedAt user}   
+        <td> 
+          <a href=@{UserR userId}>  Detail 
+          &nbsp;|&nbsp;
+          <a data-url=@{UserR userId} class="delete" href=#> Delete
+
+<p>        
+  <a href=@{SignUpR}> Register new user 

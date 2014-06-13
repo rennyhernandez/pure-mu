@@ -1,0 +1,24 @@
+$maybe Entity _ user <- muser
+  <h1> #{userName user}'s Contacts 
+
+  <ul>
+    $forall  Entity contactId contact <- contacts
+      <div>
+        <div float:left>
+          <h3> 
+            #{userName contact} 
+            <span style="color:grey"> (#{userLogin contact})
+        <div float:right>
+         <a href=@{ConversationR contactId}> Write a message 
+         |
+         <a data-url=@{ContactR (userLogin contact)} class="delete" href=#> Delete
+
+      <ul>
+        <li> Country: #{userCountry contact}
+        <li> Phone No.: #{userPhoneNo contact}
+        <li> Email: #{userEmail contact}
+           
+         
+        
+    
+

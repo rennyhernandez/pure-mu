@@ -1,0 +1,17 @@
+<p> #{extra}
+  <div>
+    <div>
+    
+    $maybe Entity _ recipient <- maybeRecipient
+       #{userLogin recipient}
+    $nothing      
+      <div>
+        To:
+        ^{fvInput recipientView}
+  <div>
+    <div style="float:left">
+      Type here:
+    <div style="float:left">
+      ^{fvInput bodyView}
+      <input type="submit" value="Send">
+    <div style="clear:both">

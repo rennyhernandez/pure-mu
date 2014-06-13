@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <title>Requesting JSON :: </title>
+    <script src="javascripts/pidcrypt.js"></script>
+    <script src="javascripts/pidcrypt_util.js"></script>
+    <script src="javascripts/aes_core.js"></script>
+    <script src="javascripts/aes_ctr.js"></script>
+    <script src="javascripts/sha256.js"></script>
+    <script src="javascripts/jquery.js"></script>
+    <script>
+    $(document).ready( function(){
+    
+      var url = "http://localhost:3000/api/publickeys/renny?_accept:application/json";
+      var xhrJSON = $.getJSON({ url: url,
+                                dataType: "json",
+                                success: function(data){
+                                  console.log($.parseJSON(data));
+                                };
+                               
+                              });
+      console.log(xhrJSON);
+       
+       });
+    </script>
+
+<body>
+
+</body>

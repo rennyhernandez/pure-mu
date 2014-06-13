@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!-- HTML5 Hello world by kirupa - http://www.kirupa.com/html5/getting_your_feet_wet_html5_pg1.htm -->
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <title>Encrypt::AES-CTR</title>
+    <script src="javascripts/pidcrypt.js"></script>
+    <script src="javascripts/pidcrypt_util.js"></script>
+    <script src="javascripts/aes_core.js"></script>
+    <script src="javascripts/aes_ctr.js"></script>
+    <script src="javascripts/sha256.js"></script>
+    <script src="javascripts/jquery.js"></script>
+    <script>
+    $(document).ready( function(){
+         $("#res-message").hide();
+          console.log("printing #res dom object...");
+          console.log($("#res"));
+          console.log("printing #res html...");
+          console.log($("#res").html());  
+          $("#my-form").bind("submit", function(){
+            event.preventDefault();
+            var passwd = $("#my-form input:password").val();
+            var message = $("#my-form textarea").val();
+            var aes = new pidCrypt.AES.CTR();
+
+
+            //printing both form field values
+            console.log("The name is: ".concat(message));
+            console.log("The password is: ".concat(passwd));
+            //initializing AES encrypt with given parameters
+            aes.initEncrypt(message, passwd, {nBits: 256});
+            var ciphertext = aes.encrypt();              
+            //printing out the resulting cyphertext to console
+            console.log("The resulting cyphertext is".concat(ciphertext));
+            $("#res-message").show();
+            $("#res").html(ciphertext);
+          });
+       });
+    </script>
+
+<body>
+<h1> AES-CTR Encrypt </h1>
+<form id="my-form" action="#">
+  Your message here:
+
+  <textarea rows="5" cols="50"> </textarea>
+  <br/>
+  Please, input your password:
+  <input type="password" >
+  <br/>
+  <input type="submit">
+<form>
+<br/>
+<div id="res-message">
+   The resulting ciphertext is: 
+   <div id="res" style="color:red"></div>
+</div>    
+
+</body>
+</html>

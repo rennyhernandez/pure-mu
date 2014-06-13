@@ -1,0 +1,32 @@
+                  <p> #{extra}
+                  <div>
+                    <div>
+                      Email:
+                    <div>
+                      ^{fvInput emailView}
+                  <div>
+                    <div>
+                       Username:
+                    <div>
+                      ^{fvInput usernameView}                      
+                  <div>
+                    <div>
+                       Password:
+                    <div>
+                      ^{fvInput passwordView}         
+                  <div>
+                    <div>
+                       Name:
+                     <div>
+                      ^{fvInput nameView}
+                  <div>
+                    <div>
+                      Country:
+                    <div>
+                      ^{fvInput countryView}
+                  <div>
+                    <div>
+                      Phone Number
+                    <div>
+                      ^{fvInput phoneNoView}
+

@@ -1,0 +1,9 @@
+<table>
+  $forall ((Entity _ message), (Entity _ sender))  <- entityMessages
+    <tr>
+      <td>
+        <a href=@{ConversationR $ fromJust $ messageConversationWith message}>
+          #{userLogin sender}
+      <td>
+        #{show $ messageCreatedAt message}
+

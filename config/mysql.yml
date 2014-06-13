@@ -1,0 +1,24 @@
+Default: &defaults
+  user: PureApp
+  password: PureApp
+  host: localhost
+  port: 3306
+  database: PureApp
+  poolsize: 10
+
+Development:
+  <<: *defaults
+
+Testing:
+  database: PureApp_test
+  <<: *defaults
+
+Staging:
+  database: PureApp_staging
+  poolsize: 100
+  <<: *defaults
+
+Production:
+  database: PureApp_production
+  poolsize: 100
+  <<: *defaults

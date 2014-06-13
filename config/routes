@@ -1,0 +1,36 @@
+/static StaticR Static getStatic
+/auth   AuthR   Auth   getAuth
+
+/favicon.ico FaviconR GET
+/robots.txt RobotsR GET
+
+/ HomeR GET 
+
+/messages/ MessagesR GET
+/message/#MessageId MessageR GET PUT DELETE
+/new/message/#UserId NewMessageR  POST
+/conversation/#UserId ConversationR GET 
+
+/new/conversation/ NewConversationR GET POST
+
+-- /delete/user/#UserId DeleteUserR GET
+
+
+/api/publickey/#Text PublicKeyR GET
+/api/privatekey/#Text PrivateKeyR GET
+
+/api/contactlist/#UserId FullContactListR GET
+
+
+
+/users/ UsersR GET
+/user/#UserId UserR GET DELETE
+
+
+/signup SignUpR GET POST
+
+/contacts/#Text ContactR GET PUT DELETE
+/contacts/ ContactsR GET
+/new/contact/ NewContactR GET POST
+/add/contact/#Text AddContactR POST
+

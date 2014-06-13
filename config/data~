@@ -1,0 +1,10 @@
+Message 
+  body Text
+  length Int
+  owner UserId 
+  conversationWith UserId Maybe  
+  sender UserId 
+  recipient UserId Maybe
+  createdAt UTCTime
+  isNew Bool
+  deriving Typeable Show

@@ -1,0 +1,29 @@
+<p>
+            User:
+             #{userName user} 
+          <p> 
+            Email:
+             #{userEmail user} 
+          <p>
+            Password:
+             #{userPassword user}
+             #{length $ userPassword user}
+          <p>
+            Salt: 
+             #{userSalt user}
+          <p>
+            Keyring:
+          
+          <p>
+            Public Key:
+            #{T.length $ keyringPublicKey keyring}
+            #{keyringPublicKey keyring }
+          <p>
+            Public Key:
+            #{T.length $ keyringPrivateKey keyring}
+            #{keyringPrivateKey keyring}
+            
+          <p> 
+            AES Key:
+            #{BC.unpack $ userAeskey user}   
+            #{length $ BC.unpack $ userAeskey user}   

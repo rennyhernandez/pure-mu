@@ -1,0 +1,28 @@
+
+$maybe (Entity loggedUserId loggedUser) <- muser
+  <div #topbar>
+    Logged in as: 
+    #{userName loggedUser}
+    (#{userEmail loggedUser}) <a href=@{AuthR LogoutR}> Sign Out </br></br>
+
+  <div #sidemenu >
+    <ul> 
+      <li>
+        <a href=@{ContactsR}> View Your Contacts
+      <li>
+        <a href=@{NewContactR}> Add Contact
+      <li>
+        <a href=@{NewConversationR}> Create New Message
+      <li>
+        <a href=@{MessagesR}> View Messages
+  
+$nothing
+  <div #topbar>
+    <a href=@{AuthR LoginR}> Sign in 
+    |
+    <a href=@{SignUpR}> Sign Up </br>
+    
+$maybe msg <- mmsg
+    <div #message>#{msg}
+<div #main .col-md-8>
+  ^{widget}

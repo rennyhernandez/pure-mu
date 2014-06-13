@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!-- HTML5 Hello world by kirupa - http://www.kirupa.com/html5/getting_your_feet_wet_html5_pg1.htm -->
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <title>Decrypt::AES-CTR</title>
+    <script src="javascripts/pidcrypt.js"></script>
+    <script src="javascripts/pidcrypt_util.js"></script>
+    <script src="javascripts/aes_core.js"></script>
+    <script src="javascripts/aes_ctr.js"></script>
+    <script src="javascripts/sha256.js"></script>
+    <script src="javascripts/jquery.js"></script>
+    <script>
+    $(document).ready( function(){
+          $("#res-message").hide();
+          var hash = "Esta es una prueba";
+          console.log("printing #res dom object...");
+          console.log($("#res"));
+          console.log("printing #res html...");
+          console.log($("#res").html());  
+          $("#my-form").bind("submit", function(){
+            event.preventDefault();
+            var passwd = $("#my-form input:password").val();
+            var ciphertext = $("#my-form input:text").val();
+            var aes = new pidCrypt.AES.CTR();
+            aes.initDecrypt(ciphertext, passwd, {nBits: 256});
+            var message = aes.decrypt();
+            //printing both form field values
+            console.log("The ciphertext is: ".concat(ciphertext));
+            console.log("The password is: ".concat(passwd));
+            //initializing AES encrypt with given parameters
+              
+            //printing out the resulting cyphertext to console
+            console.log("The decrypted message is".concat(message));
+            $("#res-message").show();
+            $("#res").html(message);
+          });
+       });
+    </script>
+
+<body>
+    <h1> AES-CTR Decrypt </h1>
+    <form id="my-form" action="#">
+      Your ciphertext here:
+      <input type="text">
+      <br/>
+      Please, input your key:
+      <input type="password" >
+      <br/>
+      <input type="submit">
+    <form>
+    <br/>
+    <div id="res-message">
+       The encrypted message looks like: 
+    </div>   
+    <div id="res" style="color:red">
+ 
+
+    </div>
+</body>

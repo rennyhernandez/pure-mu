@@ -1,0 +1,4 @@
+<ul>
+  $forall ((Entity _ message), (Entity _ sender)) <- entitiesConv
+    <li> 
+      <b> #{userLogin sender}: #{messageBody message}

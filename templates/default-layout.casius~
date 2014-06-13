@@ -1,0 +1,8 @@
+#message
+  border: 1px solid black
+#main 
+  color: red;
+#sidebar
+  float:left;
+  clear:both;
+  
