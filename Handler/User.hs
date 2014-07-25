@@ -150,9 +150,9 @@ getFullUserInfoR username = do
     SQL.where_ (user SQL.^. UserLogin SQL.==. SQL.val username SQL.&&.
                 user SQL.^. UserId SQL.==. keyring SQL.^. KeyringOwner)
     return(user, keyring SQL.^. KeyringPublicKey)
-  let fullUserInfo = head fullUserInfos
+  let fullUserInfo = head fullUserInfos -- SQL.select returns an array of results, taking first element
   liftIO $ print fullUserInfo
-  returnJson $ fst fullUserInfo
+  returnJson $ (entityVal . fst)  fullUserInfo
 
 -- Public and PrivateKeys are encoded and stored in binary format. These functions 
 -- decode them from binary and construct their appropiate type
