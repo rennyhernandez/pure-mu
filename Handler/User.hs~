@@ -151,7 +151,7 @@ getFullUserInfoR username = do
                 user SQL.^. UserId SQL.==. keyring SQL.^. KeyringOwner)
     return(user, keyring SQL.^. KeyringPublicKey)
   let fullUserInfo = head fullUserInfos
-  
+  liftIO $ print fullUserInfo
   returnJson ("Returned Value" :: Text)
 
 -- Public and PrivateKeys are encoded and stored in binary format. These functions 

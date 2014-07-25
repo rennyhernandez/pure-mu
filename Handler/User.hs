@@ -152,7 +152,7 @@ getFullUserInfoR username = do
     return(user, keyring SQL.^. KeyringPublicKey)
   let fullUserInfo = head fullUserInfos
   liftIO $ print fullUserInfo
-  returnJson ("Returned Value" :: Text)
+  returnJson $ fst fullUserInfo
 
 -- Public and PrivateKeys are encoded and stored in binary format. These functions 
 -- decode them from binary and construct their appropiate type
