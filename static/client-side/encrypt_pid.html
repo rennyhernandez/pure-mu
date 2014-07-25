@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!-- HTML5 Hello world by kirupa - http://www.kirupa.com/html5/getting_your_feet_wet_html5_pg1.htm -->
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <title>Encrypt::AES-CTR using PidCrypt</title>
+    <script src="javascripts/pidcrypt.js"></script>
+    <script src="javascripts/pidcrypt_util.js"></script>
+    <script src="javascripts/aes_core.js"></script>
+    <script src="javascripts/aes_ctr.js"></script>
+    <script src="javascripts/sha256.js"></script>
+    <script src="javascripts/jquery.js"></script>
+    <script>
+    $(document).ready( function(){
+         $("#res-message").hide();
+          console.log("printing #res dom object...");
+          console.log($("#res"));
+          console.log("printing #res html...");
+          console.log($("#res").html());  
+          $("#my-form").bind("submit", function(){
+            event.preventDefault();
+            var passwd = $("#my-form input:password").val();
+            var message = $("#my-form textarea").val();
+            var aes = new pidCrypt.AES.CTR();
+            var key = pidCrypt.SHA256(passwd);
+            console.log("256bit key: ".concat(key));
+            //printing both form field values
+            console.log("The name is: ".concat(message));
+            console.log("The password is: ".concat(passwd));
+            console.log("SLICE:".concat(passwd.slice()));
+            var passwdb64 = pidCryptUtil.encodeBase64(passwd);
+            console.log("The password in Base64 encoding is: ".concat(passwdb64));
+            //initializing AES encrypt with given parameters
+            aes.initEncrypt(message, key, {nBits: 256});            
+
+            var ciphertext = aes.encrypt();   
+            console.log(aes.pidcrypt.getParams());           
+            console.log("The resulting ciphertext is (in base64 encoding) ".concat(ciphertext));
+            console.log("The decoded ciphertext is (base64 decoded)".concat(pidCryptUtil.decodeBase64(ciphertext)));
+            $("#res-message").show();
+            $("#sha").html(key);
+            $("#res").html(ciphertext);
+          });
+       });
+    </script>
+
+<body>
+<h1> AES-CTR Encrypt </h1>
+<form id="my-form" action="#">
+  Your message here:
+
+  <textarea rows="5" cols="50"></textarea>
+  <br/>
+  Please, input your password:
+  <input type="password" >
+  <br/>
+  <input type="submit">
+<form>
+<br/>
+<div id="res-message">
+  The 256 bit SHA used for the key is: 
+  <div id="sha" style="color:blue"> </div>
+   The resulting ciphertext is: 
+   <div id="res" style="color:red"></div>
+</div>    
+
+</body>
+</html>

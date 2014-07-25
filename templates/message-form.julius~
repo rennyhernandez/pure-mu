@@ -1,0 +1,32 @@
+$(document).ready(function(){
+
+  $("form").submit(function(event){
+    var accept_json = "?_accept:application/json";
+    var user_from = "#{rawJS sessionUsername}";
+    var user_to = "vemeko";
+    var get_private_key_url = "http://localhost:3000/api/privatekey/" + user_from + accept_json;
+    var get_public_key_url = "http://localhost:3000/api/publickey/" + user_to + accept_json;
+    var publicKey;
+    var privateKey;
+    $.when(
+      $.getJSON(get_public_key_url, function(data){
+        publicKey = data;
+      }),
+      $.getJSON(get_private_key_url, function(data){
+        privateKey = data;
+      })
+    ).then(function(){
+      if(publicKey && privateKey)
+      {
+        //both ajax request were successful. 
+        console.log(publicKey);
+        console.log(privateKey);
+      } else
+      {
+        //one of the ajax request were unsuccesful. Error. 
+      }
+      });
+    event.preventDefault();
+    return false;
+  });
+});  

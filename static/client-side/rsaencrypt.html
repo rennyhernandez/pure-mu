@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <title>RSA Encrypt (Using imported params) </title>
+    <script src="javascripts/jquery.js"></script>
+    <script src="javascripts/forge/forge.bundle.js"></script>
+    <script>
+    $(document).ready(function(){
+
+      var url = "http://localhost:3000/api/publickey/renny?_accept:application/json";
+      var message = "The quick brown fox jumps over the lazy dog";
+      var xhrJSON  = $.getJSON(url, function(data){
+
+        var n = new forge.jsbn.BigInteger(data.public_n, 16);
+        var e = data.public_e;
+        var publicKey = forge.pki.rsa.setPublicKey(n,e);
+        
+        console.log(publicKey.encrypt());
+              
+      });     
+
+
+//      var bi = new forge.jsbn.BigInteger(pubkeyJSON.public_n, 16);
+//      console.log(bi);
+       });
+    </script>
+
+<body>
+
+</body>
