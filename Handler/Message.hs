@@ -3,61 +3,87 @@
 module Handler.Message where
 
 import Import
+
+import Yesod.Auth
+
 import Data.Time (getCurrentTime)
 import Data.Maybe (fromJust, fromMaybe)
-import qualified Data.Text as T (length)
-import Yesod.Auth
+import qualified Data.Text as T (length, pack, unpack)
 import Data.String (IsString)
+import Text.Julius (rawJS, toJavascript)
+import qualified Data.Aeson as J
+
+
+import Data.ByteString (ByteString)
+import qualified Data.ByteString.Char8 as BC (pack, unpack)
 import qualified Database.Esqueleto as E hiding (SqlBackend)
 
 
+import qualified Data.ByteString.Base64 as B64 -- RFC 4648 compliant
+import qualified Data.ByteString.Base16 as B16
+
+import Crypto.Random
+import Crypto.PBKDF.ByteString (sha256PBKDF2)
 
   
 
  
 -- Form widget to manipulate message creation from List Message User.
-messageForm :: UserId -> Maybe UserId -> Html -> MForm Handler (FormResult (Message, Maybe Text), Widget)
+messageForm :: UserId -> Maybe UserId -> Html -> MForm Handler (FormResult (Message, Maybe ByteString), Widget)
 messageForm owner maybeRecipient extra = do
-  contacts' <- lift $ runDB $ E.select $
-          E.from $ \(list,contact,user) -> do
-          E.where_ $ (list E.^. ListOwner E.==. E.val owner E.&&.
-                     contact E.^. ContactList E.==. list E.^. ListId E.&&.
-                     user E.^. UserId E.==. contact E.^. ContactContact)
-          return (user E.^. UserLogin)                             
-  let contacts = map (\login -> (E.unValue login, E.unValue login)) contacts'
-  (recipientRes, recipientView) <- mreq (selectFieldList contacts) "Contacts" Nothing
---  (recipientRes, recipientView) <- mreq textField "To:" Nothing
-  (bodyRes, bodyView) <- mreq textField "Body" Nothing
-  (passRes, passView) <- mopt passwordField "Secret Key" Nothing
+  mu <- lift $  maybeAuth
+  case mu of 
+    Just (Entity _ userSession) -> do
+    -- Retrieve the authenticated user's contact list 
+      contacts' <- lift $ runDB $ E.select $
+              E.from $ \(list,contact,user) -> do
+              E.where_ $ (list E.^. ListOwner E.==. E.val owner E.&&.
+                         contact E.^. ContactList E.==. list E.^. ListId E.&&.
+                         user E.^. UserId E.==. contact E.^. ContactContact)
+              return (user E.^. UserLogin)                             
+      let contacts = map (\login -> (E.unValue login, E.unValue login)) contacts'
+      (recipientRes, recipientView) <- mreq (selectFieldList contacts) "Contacts" Nothing
+      --  (recipientRes, recipientView) <- mreq textField "To:" Nothing
+      (bodyRes, bodyView) <- mreq textField "Body" Nothing
+      (passRes, passView) <- mopt passwordField "Secret Key" Nothing
 
-  recipient <- case maybeRecipient of 
-    Just res -> return $ FormSuccess (Just res)
-    Nothing -> do
-      case recipientRes of   
-        FormSuccess rec -> do
-          rec' <- lift $ runDB $ getBy (UniqueUsername rec)
-          case rec' of 
-            Just rec'' -> return $ FormSuccess (Just $ entityKey rec'')
-            Nothing -> do
+      recipient <- case maybeRecipient of -- evaluates if there is a recipient paramater
+       -- if there is a value in the 'recipient' input field, it returns the value, wrapped with Maybe and FormResult Functors. 
+        Just res -> return $ FormSuccess (Just res)
+      -- If there is nothing in the maybeRecipient (the conversation is new), it creates a new conversation with the intended recipient
+        Nothing -> do 
+          case recipientRes of   
+            FormSuccess rec -> do
+              rec' <- lift $ runDB $ getBy (UniqueUsername rec)
+              case rec' of 
+                Just rec'' -> return $ FormSuccess (Just $ entityKey rec'')
+                Nothing -> do
+                  setMessage $ toHtml ("User not Found" :: Text)
+                  redirect NewConversationR         
+            FormFailure _ -> do
               setMessage $ toHtml ("User not Found" :: Text)
-              redirect NewConversationR         
-        FormFailure _ -> do
-          setMessage $ toHtml ("User not Found" :: Text)
-          redirect NewConversationR
-        FormMissing -> return $ FormSuccess Nothing
-  now  <- liftIO getCurrentTime
-  let messageRes = Message  <$> fmap Just bodyRes --body Text 
-                             <*> fmap T.length bodyRes  --length Int
-                             <*> pure owner -- owner UserId
-                             <*> recipient -- conversationWith UserId Maybe
-                             <*> pure owner -- sender UserId  
-                             <*> recipient  --recipient Maybe UserId 
-                             <*> pure now --createdAt UTCTime
-                             <*> pure True -- isNew
-                             <*> pure Nothing
-                             <*> pure Nothing
-      widget = $(widgetFile "message-form")
-  return ((,) <$> messageRes <*> passRes, widget)    
+              redirect NewConversationR
+            FormMissing -> return $ FormSuccess Nothing
+      now  <- liftIO getCurrentTime
+      salt <- liftIO $ generateSalt 32
+      let secretKey  =  fmap (fmap ((\password -> (sha256PBKDF2 password salt 4 32))  . BC.pack . T.unpack)) passRes
+
+      let messageRes = Message  <$> fmap Just bodyRes --body Text 
+                                 <*> fmap T.length bodyRes  --length Int
+                                 <*> pure owner -- owner UserId
+                                 <*> recipient -- conversationWith UserId Maybe
+                                 <*> pure owner -- sender UserId  
+                                 <*> recipient  --recipient Maybe UserId 
+                                 <*> pure now --createdAt UTCTime
+                                 <*> pure True -- isNew
+                                 <*> pure Nothing
+                                 <*> pure Nothing
+                                 <*> secretKey
+                                 <*> pure Nothing
+          sessionUsername = userLogin userSession
+          widget = $(widgetFile "message-form")
+      return ((,) <$> messageRes <*> secretKey, widget)
+    Nothing -> error "Cannot send message right now"
 
 
 
@@ -68,7 +94,7 @@ getConversationR recipientId = do
     Just userId -> do
       maybeRecipient <- runDB $ get recipientId 
       case maybeRecipient of 
-        Just _ -> do
+        Just recipient -> do
           conversation <- runDB $ E.select $ 
                           E.from $ \(message, sender) -> do 
                           E.where_ (message E.^. MessageOwner E.==. E.val userId E.&&. 
@@ -82,7 +108,11 @@ getConversationR recipientId = do
               redirect MessagesR        
             else do-}
           (widget, enctype) <- generateFormPost $ messageForm userId (Just recipientId)
-          defaultLayout $(widgetFile "conversation")        
+          defaultLayout $ do 
+            addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+            addScript $ StaticR js_forge_forge_bundle_js 
+            $(widgetFile "conversation")        
+            
         Nothing -> redirectError "You cannot contact this user right now" MessagesR
     Nothing -> redirect MessagesR
 
@@ -126,11 +156,15 @@ getNewConversationR = do
   case muser of 
     Just userId -> do  
       (widget, enctype) <- generateFormPost $ messageForm userId Nothing
-      defaultLayout $(widgetFile "compose") 
+      defaultLayout $ do 
+        addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+        addScript $ StaticR js_forge_forge_bundle_js 
+        $(widgetFile "compose") 
+         
     Nothing  -> do
       setMessage $ toHtml ("Please, sign in to your account" :: Text)
       redirect HomeR      
-
+-- Creates a new message and conversation (conversation has many message)
 postNewConversationR :: Handler Html
 postNewConversationR = do 
   mu <- maybeAuthId 
@@ -211,11 +245,25 @@ postNewMessageR recipient = do
       setMessage $ toHtml ("Please, sign in to your account" :: Text)
       redirect HomeR     
 
+generateSalt :: Int -> IO ByteString
+generateSalt byteSize = do 
+  g <- newGenIO :: IO SystemRandom
+  let eitherRand = genBytes byteSize g
+  (salt, gen) <- case eitherRand of 
+    Left _ ->  error "Could not generate random bytes"
+    Right t -> return t
+  return salt
 
 
-
-
-    
+postMessageSendR :: Handler Value
+postMessageSendR = do
+  d <- runInputPost $ Mensaje <$> ireq textField "body" 
+                              <*> pure 0
+                              <*> pure $ getCurrentTime
+                              <*> pure True
+  liftIO $ print d
+  returnJson d
+  
 
 putMessageR :: MessageId -> Handler Html
 putMessageR _ = error "Not implemented yet"

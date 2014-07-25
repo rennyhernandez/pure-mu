@@ -1,4 +1,4 @@
-
+{-# LANGUAGE FlexibleInstances #-}
 
 module Model where
 

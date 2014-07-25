@@ -22,13 +22,14 @@ $newline never
 
         <script>
           document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
+
     <body>
         <div class="container">
             <header>
             <div id="main" role="main">
               ^{pageBody pc}
             <footer>
-                #{settings copyright}
+              #{extraCopyright $ appExtra $ settings master}
 
         $maybe analytics <- extraAnalytics $ appExtra $ settings master
             <script>

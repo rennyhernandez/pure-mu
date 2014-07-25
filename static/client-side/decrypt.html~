@@ -3,12 +3,8 @@
 <html lang="en-us">
 <head>
     <meta charset="utf-8">
-    <title>Decrypt::AES-CTR</title>
-    <script src="javascripts/pidcrypt.js"></script>
-    <script src="javascripts/pidcrypt_util.js"></script>
-    <script src="javascripts/aes_core.js"></script>
-    <script src="javascripts/aes_ctr.js"></script>
-    <script src="javascripts/sha256.js"></script>
+    <title>Decrypt::AES-GSM using Forge</title>
+    <script src="javascripts/forge/forge.js"></script>
     <script src="javascripts/jquery.js"></script>
     <script>
     $(document).ready( function(){
@@ -51,7 +47,7 @@
     <form>
     <br/>
     <div id="res-message">
-       The encrypted message looks like: 
+       The encrypted message is: 
     </div>   
     <div id="res" style="color:red">
  

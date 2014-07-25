@@ -18,9 +18,8 @@
 
 /api/publickey/#Text PublicKeyR GET
 /api/privatekey/#Text PrivateKeyR GET
-
+/api/message/send/ MessageSendR POST
 /api/contactlist/#UserId FullContactListR GET
-
 
 
 /users/ UsersR GET

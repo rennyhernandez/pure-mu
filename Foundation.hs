@@ -29,6 +29,7 @@ import qualified Data.ByteString as B
 import Data.Text
 import Database.Persist
 import Crypto.Types.PubKey.RSA (PublicKey(..), PrivateKey (..))
+import Numeric (showHex)
 --import Model (User(..), List (..))
 
 -- | The site argument for your application. This can be a good place to
@@ -181,14 +182,14 @@ getExtra = fmap (appExtra . settings) getYesod
 instance ToJSON PublicKey where
     toJSON PublicKey {..} = object
         [ "public_size" .= public_size, 
-          "public_n"  .= public_n, 
+          "public_n"  .= showHex public_n "", 
           "public_e" .= public_e
         ]
         
 instance ToJSON PrivateKey where
     toJSON PrivateKey {..} = object
         [ "private_pub" .= private_pub, 
-          "private_d" .= private_d, 
+          "private_d" .= showHex private_d "", 
           "private_p" .= private_p,
           "private_q" .= private_q,                    
           "private_dP" .= private_dP,                    

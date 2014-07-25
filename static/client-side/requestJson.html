@@ -3,23 +3,19 @@
 <head>
     <meta charset="utf-8">
     <title>Requesting JSON :: </title>
-    <script src="javascripts/pidcrypt.js"></script>
-    <script src="javascripts/pidcrypt_util.js"></script>
-    <script src="javascripts/aes_core.js"></script>
-    <script src="javascripts/aes_ctr.js"></script>
-    <script src="javascripts/sha256.js"></script>
     <script src="javascripts/jquery.js"></script>
+    <script src="javascripts/forge/forge.bundle.js"></script>
     <script>
     $(document).ready( function(){
     
-      var url = "http://localhost:3000/api/publickeys/renny?_accept:application/json";
-      var xhrJSON = $.getJSON({ url: url,
-                                dataType: "json",
-                                success: function(data){
-                                  console.log($.parseJSON(data));
-                                };
-                               
-                              });
+      var url = "http://localhost:3000/api/publickey/renny?_accept:application/json";
+      var xhr = $.ajax({ url: url, 
+                  });
+                  
+      console.log(xhr);
+      var publicJSON = xhr.responseJSON;
+      
+      var xhrJSON = $.getJSON(url);
       console.log(xhrJSON);
        
        });

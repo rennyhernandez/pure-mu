@@ -2,16 +2,19 @@
   <div>
     <div>
     
-    $maybe Entity _ recipient <- maybeRecipient
-      
+    $maybe _ <- maybeRecipient
+      <!-- write your message here --> 
     $nothing      
       <div>
         To:
         ^{fvInput recipientView}
   <div>
     <div style="float:left">
-      Type here:
+      Type here:    
     <div style="float:left">
       ^{fvInput bodyView}
-      <input type="submit" value="Send">
+      <input type="submit" value="Send">      
     <div style="clear:both">
+    <div style="float:left">
+      Encryption key (Optional)
+      ^{fvInput passView}

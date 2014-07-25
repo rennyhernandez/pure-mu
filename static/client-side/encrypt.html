@@ -3,12 +3,8 @@
 <html lang="en-us">
 <head>
     <meta charset="utf-8">
-    <title>Encrypt::AES-CTR</title>
-    <script src="javascripts/pidcrypt.js"></script>
-    <script src="javascripts/pidcrypt_util.js"></script>
-    <script src="javascripts/aes_core.js"></script>
-    <script src="javascripts/aes_ctr.js"></script>
-    <script src="javascripts/sha256.js"></script>
+    <title>Encrypt::AES-GCM using Forge</title>
+    <script src="javascripts/forge/forge.bundle.js"></script>
     <script src="javascripts/jquery.js"></script>
     <script>
     $(document).ready( function(){
@@ -21,29 +17,45 @@
             event.preventDefault();
             var passwd = $("#my-form input:password").val();
             var message = $("#my-form textarea").val();
-            var aes = new pidCrypt.AES.CTR();
 
-
-            //printing both form field values
-            console.log("The name is: ".concat(message));
-            console.log("The password is: ".concat(passwd));
-            //initializing AES encrypt with given parameters
-            aes.initEncrypt(message, passwd, {nBits: 256});
-            var ciphertext = aes.encrypt();              
-            //printing out the resulting cyphertext to console
-            console.log("The resulting cyphertext is".concat(ciphertext));
+            //Using Password Based Derivation Function PBFKDF2 for 256-bit key generation
+            //var salt = forge.random.getBytesSync(32);
+            var salt = "403995189c1e622d39e2b4466883c5a6a932878d33ab045368c45f09b87fc294" // in hex
+            
+            var md = forge.md.sha256.create();
+            var key = forge.pkcs5.pbkdf2(passwd, forge.util.hexToBytes(salt), 1000, 32, md);
+            console.log("The key is: ".concat(forge.util.bytesToHex(key)));
+           
+           
+           // Generate nonce for GCM mode 
+            var iv = forge.random.getBytesSync(16); // 128 bits
+            
+            // Initialize algorithm
+            var aes = forge.cipher.createCipher('AES-CTR', key);
+            aes.start({ iv: iv,                        
+                      });
+            aes.update(forge.util.createBuffer(message));
+            aes.finish();
+            var ciphertext = aes.output;
+            var tag = aes.mode.tag;
+                                          
             $("#res-message").show();
-            $("#res").html(ciphertext);
+            $("#key").html("");
+            $("#iv").html(forge.util.bytesToHex(iv));
+            $("#tag").html(forge.util.bytesToHex(tag));
+
+            $("#res").html(ciphertext.toHex());
+            
           });
        });
     </script>
 
 <body>
-<h1> AES-CTR Encrypt </h1>
+<h1> AES-GCM Encrypt </h1>
 <form id="my-form" action="#">
   Your message here:
 
-  <textarea rows="5" cols="50"> </textarea>
+  <textarea rows="5" cols="50"></textarea>
   <br/>
   Please, input your password:
   <input type="password" >
@@ -52,8 +64,14 @@
 <form>
 <br/>
 <div id="res-message">
+  The 256 bit SHA used for the key is: 
+  <div id="key" style="color:blue"> </div>
    The resulting ciphertext is: 
-   <div id="res" style="color:red"></div>
+   <div id="res" style="color:red"></div>    
+   The tag for this ciphertext is: 
+   <div id="tag" style="color:green"></div>   
+   The Initialization Vector is: 
+  <div id="iv" style="color:blue"> </div>
 </div>    
 
 </body>

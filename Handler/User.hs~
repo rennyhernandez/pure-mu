@@ -139,6 +139,7 @@ getPrivateKeyR username = do
     SQL.where_ ( user SQL.^. UserLogin SQL.==. SQL.val username SQL.&&.
                   user SQL.^. UserId SQL.==. keyring SQL.^. KeyringOwner)
     return(keyring SQL.^. KeyringPrivateKey)
+  liftIO $ print $ (recreatePrivateKey . SQL.unValue . head) privateKeys 
   returnJson $ (recreatePrivateKey . SQL.unValue . head) privateKeys    
   
   

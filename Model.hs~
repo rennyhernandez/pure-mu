@@ -1,5 +1,4 @@
-{-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE TypeFamilies      #-}
+
 
 module Model where
 
