@@ -1,9 +1,10 @@
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Foundation where
-
+import Control.Applicative ((<$>), (<*>), pure)
 import Prelude
 import Yesod
 import Yesod.Static
@@ -30,6 +31,10 @@ import Data.Text
 import Database.Persist
 import Crypto.Types.PubKey.RSA (PublicKey(..), PrivateKey (..))
 import Numeric (showHex)
+import qualified Data.ByteString.Char8 as BC
+import Data.Text.Encoding (encodeUtf8, decodeUtf8)
+import qualified Data.Aeson as J
+import qualified Data.ByteString as B
 --import Model (User(..), List (..))
 
 -- | The site argument for your application. This can be a good place to
@@ -196,7 +201,7 @@ instance ToJSON PrivateKey where
           "private_dQ" .= private_dQ,         
           "private_qinv" .= private_qinv
         ]  
-  
+{- 
 instance ToJSON User where
   toJSON  User {..} = object
     [ "name" .= userName,
@@ -205,12 +210,19 @@ instance ToJSON User where
       "country" .= userCountry,
       "member_since" .= userCreatedAt
     ]
+-}
 instance ToJSON List where
   toJSON List {..} = object
     [ "user_id" .= listOwner,
       "created_at" .= listCreatedAt
     ]
-
+{-
+instance ToJSON B.ByteString where
+  toJSON = J.String . decodeUtf8
+  
+instance FromJSON B.ByteString where
+ parseJSON = J.withText "ByteString" $  pure . encodeUtf8
+ -}
 redirectError :: (RedirectUrl (HandlerSite m) url, MonadHandler m) => Text -> url ->  m a
 redirectError message url = do
    setMessage $ toHtml message

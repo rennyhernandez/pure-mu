@@ -254,15 +254,25 @@ generateSalt byteSize = do
     Right t -> return t
   return salt
 
-
+{-
 postMessageSendR :: Handler Value
 postMessageSendR = do
-  d <- runInputPost $ Mensaje <$> ireq textField "body" 
-                              <*> pure 0
-                              <*> pure $ getCurrentTime
+  now <- liftIO $ getCurrentTime
+  d <- runInputPost $ Mensaje <$> iopt textField "body"
+                              <*> fmap (T.length . fromJust) (iopt textField "body") 
+                              <*> pure now
+                              <*> pure True
+                              <*> pure Nothing
   liftIO $ print d
   returnJson d
-  
+-}
+postMessageSendR :: Handler Value
+postMessageSendR = do 
+  maybeValue <- parseJsonBody :: Handler (J.Result Value)
+  case maybeValue of
+    J.Error s -> error "Could not parse json body"
+    J.Success a -> liftIO $ print a
+  returnJson ("Hello" :: Text)
 
 putMessageR :: MessageId -> Handler Html
 putMessageR _ = error "Not implemented yet"

@@ -139,15 +139,32 @@ getPrivateKeyR username = do
     SQL.where_ ( user SQL.^. UserLogin SQL.==. SQL.val username SQL.&&.
                   user SQL.^. UserId SQL.==. keyring SQL.^. KeyringOwner)
     return(keyring SQL.^. KeyringPrivateKey)
-  liftIO $ print $ (recreatePrivateKey . SQL.unValue . head) privateKeys 
+--debugging:  liftIO $ print $ (recreatePrivateKey . SQL.unValue . head) privateKeys 
   returnJson $ (recreatePrivateKey . SQL.unValue . head) privateKeys    
+
+
+getFullUserInfoR :: Text -> Handler Value
+getFullUserInfoR username = do
+  fullUserInfos <- runDB $ SQL.select $
+    SQL.from $ \(user, keyring) -> do
+    SQL.where_ (user SQL.^. UserLogin SQL.==. SQL.val username SQL.&&.
+                user SQL.^. UserId SQL.==. keyring SQL.^. KeyringOwner)
+    return(user, keyring SQL.^. KeyringPublicKey)
+  let fullUserInfo = head fullUserInfos
   
-  
+  returnJson ("Returned Value" :: Text)
+
+-- Public and PrivateKeys are encoded and stored in binary format. These functions 
+-- decode them from binary and construct their appropiate type
+
 recreatePublicKey :: Text -> PublicKey
 recreatePublicKey pubkey = BIN.decode $ BCL.pack $ T.unpack pubkey
 
 recreatePrivateKey :: Text -> PrivateKey
 recreatePrivateKey pvtkey = BIN.decode $ BCL.pack $ T.unpack pvtkey
+
+--
+-- 
 
 
 createKeyring :: IO (PublicKey, PrivateKey)
@@ -169,7 +186,7 @@ generateAESKey = do
   case res of
     Right (x, _) -> return x
     Left  _      -> error "Couldn't generate AES Key"
-    
+
     
     
 

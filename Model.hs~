@@ -1,7 +1,11 @@
-
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Model where
 
+import Control.Applicative (pure)
 import Prelude
 import Yesod
 import Data.Text (Text)
@@ -10,7 +14,8 @@ import Data.Typeable (Typeable)
 import Data.Time (UTCTime)
 import Data.ByteString (ByteString)
 import Yesod.Auth.HashDB (HashDBUser(..))
-
+import Data.Aeson (withText, Value(..), ToJSON(..), FromJSON(..))
+import Data.Text.Encoding (encodeUtf8, decodUtf8)
 
 -- You can define all of your database entities in the entities file.
 -- You can find more information on persistent and how to declare entities
@@ -19,6 +24,12 @@ import Yesod.Auth.HashDB (HashDBUser(..))
 share [mkPersist sqlOnlySettings, mkMigrate "migrateAll"]
     $(persistFileWith lowerCaseSettings "config/models")
 
+instance ToJSON ByteString where
+  toJSON = String . decodeUtf8
+  
+instance FromJSON ByteString where
+ parseJSON = withText "ByteString" $  pure . encodeUtf8
+ 
 
 instance HashDBUser User where
   userPasswordHash = Just . userPassword
