@@ -270,8 +270,9 @@ postMessageSendR :: Handler Value
 postMessageSendR = do 
   maybeValue <- parseJsonBody :: Handler (J.Result Value)
   case maybeValue of
-    J.Error s -> error "Could not parse json body"
-    J.Success a -> liftIO $ print a
+    J.Error s -> error "Could not parse json body" --TODO: set errors when defined 
+    J.Success a -> do 
+      liftIO $ print a
   returnJson ("Hello" :: Text)
 
 putMessageR :: MessageId -> Handler Html

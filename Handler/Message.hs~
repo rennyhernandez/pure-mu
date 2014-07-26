@@ -27,7 +27,7 @@ import Crypto.PBKDF.ByteString (sha256PBKDF2)
 
   
 
- 
+
 -- Form widget to manipulate message creation from List Message User.
 messageForm :: UserId -> Maybe UserId -> Html -> MForm Handler (FormResult (Message, Maybe ByteString), Widget)
 messageForm owner maybeRecipient extra = do
