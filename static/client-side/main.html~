@@ -9,7 +9,7 @@
 <script src="javascripts/angular.js"></script>
 <script src="javascripts/controllers/app.js"></script>
 <script src="javascripts/forge.bundle.js"></script>
-<script src="jquery.js"></script>
+<script src="javascripts/jquery.js"></script>
 
 </head>
 <body>
@@ -25,11 +25,16 @@
                 </li>
             </ul>
         </blockquote>
-        
+        <blockquote ng-show="main.user !== null">
+          <p> {{main.user.name}} </p>
+          <p> {{main.user.login}} </p> 
+          <p> {{main.user.email}} </p>
+
+        </blockquote>
         <form ng-submit="main.saveMessage()"> 
         <fieldset>
             <label>To:</label>
-            <input ng-model="to" type="text">
+            <input ng-model="to" type="text" ng-change="main.getUserInfo()">
         </fieldset>
             
         <fieldset>
