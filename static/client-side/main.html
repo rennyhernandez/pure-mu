@@ -25,11 +25,16 @@
                 </li>
             </ul>
         </blockquote>
-        
+        <blockquote ng-show="main.user !== null">
+          <p> {{main.user.name}} </p>
+          <p> {{main.user.login}} </p> 
+          <p> {{main.user.email}} </p>
+
+        </blockquote>
         <form ng-submit="main.saveMessage()"> 
         <fieldset>
             <label>To:</label>
-            <input ng-model="to" type="text">
+            <input ng-model="to" type="text" ng-change="main.getUserInfo()">
         </fieldset>
             
         <fieldset>
