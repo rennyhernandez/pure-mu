@@ -4,21 +4,27 @@
         var env = this;
         $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
         this.messages = [];
+        this.destinationPublicKey;
         this.getUserInfo = function(){
-                 $http.get('http://localhost:3000/api/user/fullinfo/' + $scope.to).success(function(data){
+                 $http.get('http://localhost:3000/api/user/fullinfo/' + $scope.to).success(function(data){                 
                  env.user = data
          });
         };
         this.saveMessage = function(){
         
+          this.user;
           this.message = { 
                             to: this.user.login,
                             from: 'renny', //TODO: change value with username in session
                             body: $scope.body,                             
                             createdAt: Date.now()
                           }
-          this.user;
-
+          
+          //Get destination public key
+          $http.get('http://localhost:3000/api/publickey/' + this.user.login).success(function(data){
+            env.destinationPublicKey = data;                      
+          });
+          
            //Save message to Server
            $http.post('http://localhost:3000/api/message/send', this.message).
            success(function(data, status, headers, config) {

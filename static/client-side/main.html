@@ -29,7 +29,7 @@
           <p> {{main.user.name}} </p>
           <p> {{main.user.login}} </p> 
           <p> {{main.user.email}} </p>
-
+          <p ng-show="main.destinationPublicKey !== null"> {{main.destinationPublicKey}}</p>
         </blockquote>
         <form ng-submit="main.saveMessage()"> 
         <fieldset>
