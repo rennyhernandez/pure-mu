@@ -13,14 +13,18 @@
                  env.user = data
          });
         };
-        this.saveMessage = function(){        
+        this.saveMessage = function(){ 
+          envsave = this;       
           this.user;
+          this.now = Date.now();
+          console.log(this.now);
           this.message = { 
                             to: this.user.login,
                             from: 'renny', //TODO: change value with username in session
                             body: $scope.body,                             
-                            createdAt: Date.now()
+                            createdAt: this.now
                           }
+
           
           // Get destination public key
           $http.get('http://localhost:3000/api/publickey/' + this.user.login).success(function(pkdata){          
@@ -38,7 +42,14 @@
             env.ciphertext = env.destinationPublicKey.encrypt(forge.util.createBuffer(env.message));
             console.log(env.ciphertext);
             // Save message to Server
-            $http.post('http://localhost:3000/api/message/send', this.message).
+            
+          this.datapacket = {
+                   to: env.user.login,
+                   from: 'renny', //TODO: change value with username in session
+                   body: env.ciphertext,
+                   createdAt: envsave.now
+          }
+            $http.post('http://localhost:3000/api/message/send', this.datapacket).
             success(function(data, status, headers, config) {
               env.messages.push(env.message);
               $scope.body = $scope.to = null;
