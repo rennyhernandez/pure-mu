@@ -12,6 +12,8 @@ import qualified Data.Text as T (length, pack, unpack)
 import Data.String (IsString)
 import Text.Julius (rawJS, toJavascript)
 import qualified Data.Aeson as J
+import Data.HashMap.Strict ((!))
+import Data.Aeson.Types (parse)
 
 
 import Data.ByteString (ByteString)
@@ -266,14 +268,42 @@ postMessageSendR = do
   liftIO $ print d
   returnJson d
 -}
+
+{-
+postMessageSend receives a POST request. The data received with the request has the form: 
+   { to : String, 
+     from: String, 
+     body: String, 
+     createdAt: Number
+   }
+
+
+-}
 postMessageSendR :: Handler Value
 postMessageSendR = do 
   maybeValue <- parseJsonBody :: Handler (J.Result Value)
   case maybeValue of
     J.Error s -> error "Could not parse json body" --TODO: set errors when defined 
-    J.Success a -> do 
-      liftIO $ print a
-  returnJson ("Hello" :: Text)
+    J.Success (J.Object jsonRes) -> do 
+    --TODO: Refactor it and add exhaustive cases for each json value
+      let (J.Success createdAtTS) =  J.fromJSON (jsonRes  ! "createdAt")  :: J.Result Integer
+      let (J.Success body) =  J.fromJSON (jsonRes  ! "body")  :: J.Result ByteString
+      let (J.Success to)  = J.fromJSON (jsonRes ! "to") :: J.Result Text
+      let (J.Success from) =  J.fromJSON (jsonRes  ! "from")  :: J.Result Text
+      maybeUserTo <- runDB $ getBy (UniqueUsername to)
+      maybeUserFrom <- runDB $ getBy (UniqueUsername from)
+    --TODO: Again, this must be refactored and treated as cases
+      let (Entity keyTo valueTo) = fromJust maybeUserTo
+      let (Entity keyFrom valueFrom) = fromJust maybeUserFrom
+{-      let mensaje = Mensaje {
+                              mensajeBody = Just body,
+                              mensajeLength = T.length body,
+                              mensajeCreatedAt = 
+                            }
+  -}    
+      returnJson jsonRes
+    J.Success _ -> error "unspecified datatype"
+  
 
 putMessageR :: MessageId -> Handler Html
 putMessageR _ = error "Not implemented yet"
