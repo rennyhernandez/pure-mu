@@ -2,6 +2,11 @@ module Utils where
 
 import Import
 import Data.Time
+-------------------------------------------
+--
+-- Utilities for handling timestamps  
+--
+-------------------------------------------
 
 -- Returns a Javascript compliant timestamp. 
 -- Primarily, it is the amount of miliseconds from January 1st, 1970 until it is invoked. 

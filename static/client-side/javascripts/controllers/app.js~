@@ -47,7 +47,7 @@
                    to: env.user.login,
                    from: 'renny', //TODO: change value with username in session
                    body: env.ciphertext,
-                   createdAt: this.now
+                   createdAt: envsave.now
           }
             $http.post('http://localhost:3000/api/message/send', this.datapacket).
             success(function(data, status, headers, config) {
