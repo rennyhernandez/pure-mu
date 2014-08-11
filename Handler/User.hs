@@ -19,6 +19,7 @@ import Data.Time (UTCTime, getCurrentTime)
 import qualified Crypto.Hash.SHA256 as H
 import qualified Database.Esqueleto as SQL
 import Data.Typeable (typeOf)
+import Utils
 
 getUserR :: UserId -> Handler Html
 getUserR userId = do
@@ -151,6 +152,8 @@ getFullUserInfoR username = do
                 user SQL.^. UserId SQL.==. keyring SQL.^. KeyringOwner)
     return(user, keyring SQL.^. KeyringPublicKey)
   let fullUserInfo = head fullUserInfos -- SQL.select returns an array of results, taking first element
+  now <- liftIO getTimestamp 
+  liftIO $ print now
   liftIO $ print fullUserInfo
   returnJson $ (entityVal . fst)  fullUserInfo
 

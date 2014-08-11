@@ -292,15 +292,15 @@ postMessageSendR = do
       let (J.Success from) =  J.fromJSON (jsonRes  ! "from")  :: J.Result Text
       maybeUserTo <- runDB $ getBy (UniqueUsername to)
       maybeUserFrom <- runDB $ getBy (UniqueUsername from)
-    --TODO: Again, this must be refactored and treated as cases
+    --TODO: Same as befor, this must be refactored and treated as cases
       let (Entity keyTo valueTo) = fromJust maybeUserTo
       let (Entity keyFrom valueFrom) = fromJust maybeUserFrom
-      let mensaje = Mensaje {
+{-      let mensaje = Mensaje {
                               mensajeBody = Just body,
                               mensajeLength = T.length body,
                               mensajeCreatedAt = 
                             }
-      
+  -}    
       returnJson jsonRes
     J.Success _ -> error "unspecified datatype"
   

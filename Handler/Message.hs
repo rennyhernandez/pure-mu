@@ -292,7 +292,7 @@ postMessageSendR = do
       let (J.Success from) =  J.fromJSON (jsonRes  ! "from")  :: J.Result Text
       maybeUserTo <- runDB $ getBy (UniqueUsername to)
       maybeUserFrom <- runDB $ getBy (UniqueUsername from)
-    --TODO: Again, this must be refactored and treated as cases
+    --TODO: Same as before, this must be refactored and treated as cases
       let (Entity keyTo valueTo) = fromJust maybeUserTo
       let (Entity keyFrom valueFrom) = fromJust maybeUserFrom
 {-      let mensaje = Mensaje {

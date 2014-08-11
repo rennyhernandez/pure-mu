@@ -32,6 +32,7 @@ import Handler.Home
 import Handler.Message
 import Handler.User
 import Handler.ContactList
+import Handler.Utils
 
 
 -- This line actually creates our YesodDispatch instance. It is the second half

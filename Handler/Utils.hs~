@@ -1,0 +1,5 @@
+module Handler.Utils where
+
+import Prelude 
+getTimeStamp :: Int
+getTimeStamp  = 1
