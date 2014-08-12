@@ -1,21 +1,22 @@
 <p> #{extra}
-  <div>
-    <div>
-    
-    $maybe _ <- maybeRecipient
-      <!-- write your message here --> 
-    $nothing      
-      <div>
-        To:
-        ^{fvInput recipientView}
-  <div>
-    <div style="float:left">
-      Type here:    
-    <div style="float:left">
-      ^{fvInput bodyView}
+<blockquote> 
 
-    <div style="clear:both">
-    <div style="float:left">
-      Encryption key (Optional)
-      ^{fvInput passView}
+<div>
+  <div>
+  
+  $maybe _ <- maybeRecipient
+    <!-- write your message here --> 
+  $nothing      
+    <div>
+      To:
+      ^{fvInput recipientView}
+<div>
+  <div style="float:left">
+    Type here:    
+  <div style="float:left">
+    ^{fvInput bodyView}
+  <div style="clear:both">
+  <div style="float:left">
+    Encryption key (Optional)
+    ^{fvInput passView}
     <input type="submit" value="Send">      
