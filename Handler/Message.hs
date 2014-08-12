@@ -61,9 +61,6 @@ messageForm owner maybeRecipient extra = do
                 fsAttrs = [("ng-model","body")]
                }) Nothing
       (passRes, passView) <- mopt passwordField "Secret Key" Nothing
-
-
-
       recipient <- case maybeRecipient of -- evaluates if there is a recipient value from argument
        -- if there is a value in the 'recipient' input field, it returns the value,  wrapped with Maybe and FormResult Functors. 
         Just res -> return $ FormSuccess (Just res)
