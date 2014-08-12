@@ -1,5 +1,6 @@
-<h1> New Chat
-<form method=post action=@{NewConversationR} enctype=#{enctype}>
-  ^{widget}               
+<div ng-controller="MainController as compose">
+  <h1> New Chat
+  <form method=post action=@{NewConversationR} enctype=#{enctype}>
+    ^{widget}               
 
 
