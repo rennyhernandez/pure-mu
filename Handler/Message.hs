@@ -36,6 +36,7 @@ messageForm owner maybeRecipient extra = do
   mu <- lift $  maybeAuth
   case mu of 
     Just (Entity _ userSession) -> do
+    {-
     -- Retrieve the authenticated user's contact list 
       contacts' <- lift $ runDB $ E.select $
               E.from $ \(list,contact,user) -> do
@@ -46,7 +47,8 @@ messageForm owner maybeRecipient extra = do
       -- Extract  login and prepare it in a 2 tuple for select field rendering
       let contacts = map (\login -> (E.unValue login, E.unValue login)) contacts'
       liftIO $ print $ contacts
-      (recipientRes, recipientView) <- mreq (selectFieldList contacts) (FieldSettings { fsLabel = "Contacts", 
+      let contacts'' = [("Hello" :: Text, "World" :: Text)]-}
+      (recipientRes, recipientView) <- mreq textField (FieldSettings { fsLabel = "Contacts", 
                 fsTooltip = Nothing,
                 fsId = Nothing,
                 fsName = Nothing,
