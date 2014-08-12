@@ -42,10 +42,11 @@ messageForm owner maybeRecipient extra = do
               E.where_ $ (list E.^. ListOwner E.==. E.val owner E.&&.
                          contact E.^. ContactList E.==. list E.^. ListId E.&&.
                          user E.^. UserId E.==. contact E.^. ContactContact)
-              return (user E.^. UserLogin)                             
+              return (user E.^. UserLogin)  
+      -- Extract  login and prepare it in a 2 tuple for select field rendering
       let contacts = map (\login -> (E.unValue login, E.unValue login)) contacts'
+      
       (recipientRes, recipientView) <- mreq (selectFieldList contacts) "Contacts" Nothing
-      --  (recipientRes, recipientView) <- mreq textField "To:" Nothing
       (bodyRes, bodyView) <- mreq textField "Body" Nothing
       (passRes, passView) <- mopt passwordField "Secret Key" Nothing
 
@@ -160,7 +161,9 @@ getNewConversationR = do
       (widget, enctype) <- generateFormPost $ messageForm userId Nothing
       defaultLayout $ do 
         addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
-        addScript $ StaticR js_forge_forge_bundle_js 
+        addScript $ StaticR js_forge_forge_bundle_js
+        addScript $ StaticR js_angular_js 
+        addScript $ StaticR js_controllers_app_js  
         $(widgetFile "compose") 
          
     Nothing  -> do
