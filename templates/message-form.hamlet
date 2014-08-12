@@ -18,4 +18,4 @@
     <div style="float:left">
       Encryption key (Optional)
       ^{fvInput passView}
-      <input type="submit" value="Send">      
+    <input type="submit" value="Send">      

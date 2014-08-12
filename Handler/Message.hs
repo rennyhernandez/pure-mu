@@ -45,13 +45,25 @@ messageForm owner maybeRecipient extra = do
               return (user E.^. UserLogin)  
       -- Extract  login and prepare it in a 2 tuple for select field rendering
       let contacts = map (\login -> (E.unValue login, E.unValue login)) contacts'
-      
-      (recipientRes, recipientView) <- mreq (selectFieldList contacts) "Contacts" Nothing
-      (bodyRes, bodyView) <- mreq textField "Body" Nothing
+      liftIO $ print $ contacts
+      (recipientRes, recipientView) <- mreq (selectFieldList contacts) (FieldSettings { fsLabel = "Contacts", 
+                fsTooltip = Nothing,
+                fsId = Nothing,
+                fsName = Nothing,
+                fsAttrs = [("ng-model","to"), ("ng-change","compose.getUserInfo()")]
+               }) Nothing
+      (bodyRes, bodyView) <- mreq textField (FieldSettings { fsLabel = "Body", 
+                fsTooltip = Nothing,
+                fsId = Nothing,
+                fsName = Nothing,
+                fsAttrs = [("ng-model","body")]
+               }) Nothing
       (passRes, passView) <- mopt passwordField "Secret Key" Nothing
 
-      recipient <- case maybeRecipient of -- evaluates if there is a recipient paramater
-       -- if there is a value in the 'recipient' input field, it returns the value, wrapped with Maybe and FormResult Functors. 
+
+
+      recipient <- case maybeRecipient of -- evaluates if there is a recipient value from argument
+       -- if there is a value in the 'recipient' input field, it returns the value,  wrapped with Maybe and FormResult Functors. 
         Just res -> return $ FormSuccess (Just res)
       -- If there is nothing in the maybeRecipient (the conversation is new), it creates a new conversation with the intended recipient
         Nothing -> do 

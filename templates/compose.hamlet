@@ -1,6 +1,6 @@
 <div ng-controller="MainController as compose">
   <h1> New Chat
-  <form method=post action=@{NewConversationR} enctype=#{enctype}>
-    ^{widget}               
 
+  <form enctype=#{enctype} ng-submit="compose.saveMessage()">
+    ^{widget}               
 

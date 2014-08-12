@@ -1,5 +1,4 @@
 $(document).ready(function(){
-
   $("form").submit(function(event){
     var accept_json = "?_accept:application/json";
     var user_from = "#{rawJS sessionUsername}";

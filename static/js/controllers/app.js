@@ -13,13 +13,17 @@
                  env.user = data
          });
         };
+
+        //Sends an encrypted message
         this.saveMessage = function(){ 
+        
+        
           envsave = this;       
           this.user;
           this.now = Date.now();
           console.log(this.now);
           this.message = { 
-                            to: this.user.login,
+                            to: env.user.login,
                             from: 'renny', //TODO: change value with username in session
                             body: $scope.body,                             
                             createdAt: this.now
