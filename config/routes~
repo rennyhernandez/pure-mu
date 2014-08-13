@@ -16,7 +16,7 @@
 -- /delete/user/#UserId DeleteUserR GET
 
 
-/api/user/fullinfo/#Text UserInfo GET
+/api/user/fullinfo/#Text FullUserInfoR GET
 /api/publickey/#Text PublicKeyR GET
 /api/privatekey/#Text PrivateKeyR GET
 /api/message/send/ MessageSendR POST

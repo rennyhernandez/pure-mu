@@ -12,7 +12,8 @@
       ^{fvInput recipientView}
 <div>
   <div style="float:left">
-    Type here:    
+    Type here:
+  <div style="clear:both">        
   <div style="float:left">
     ^{fvInput bodyView}
   <div style="clear:both">

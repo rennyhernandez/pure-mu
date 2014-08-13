@@ -52,13 +52,17 @@ messageForm owner maybeRecipient extra = do
                 fsTooltip = Nothing,
                 fsId = Nothing,
                 fsName = Nothing,
-                fsAttrs = [("ng-model","to"), ("ng-change","compose.getUserInfo()"), ("ng-disabled","compose.userIsFound()")]
+                fsAttrs = [("ng-model","to"), 
+                           ("ng-change","compose.getUserInfo()"), 
+                           ("ng-disabled","compose.userIsFound()")]
                }) Nothing
       (bodyRes, bodyView) <- mreq textareaField (FieldSettings { fsLabel = "Body", 
                 fsTooltip = Nothing,
                 fsId = Nothing,
                 fsName = Nothing,
-                fsAttrs = [("ng-model","body")]
+                fsAttrs = [("ng-model","body"),                            
+                           ("rows","4"),
+                           ("cols","100")]
                }) Nothing
       (passRes, passView) <- mopt passwordField "Secret Key" Nothing
       recipient <- case maybeRecipient of -- evaluates if there is a recipient value from argument

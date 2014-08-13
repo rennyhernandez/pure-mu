@@ -140,7 +140,7 @@ getFullContactListR userId = do
                    user SQL.^. UserId SQL.==. keyring SQL.^. KeyringOwner
                    )
      return (list, user, keyring SQL.^. KeyringPublicKey)
-   let list = (entityVal . (\(x,_,_) -> x) . Prelude.head) cl
+   let list = (entityVal . (\(x,_,_) -> x) . Prelude.head) cl -- gets the first element of contact list which has contact list information
    let contacts = map  (\(_,y,z) ->  (entityVal y, recreatePublicKey $ SQL.unValue z)) cl      
    returnJson $ (list, contacts)
    
