@@ -52,9 +52,9 @@ messageForm owner maybeRecipient extra = do
                 fsTooltip = Nothing,
                 fsId = Nothing,
                 fsName = Nothing,
-                fsAttrs = [("ng-model","to"), ("ng-change","compose.getUserInfo()")]
+                fsAttrs = [("ng-model","to"), ("ng-change","compose.getUserInfo()"), ("ng-disabled","compose.userIsFound()")]
                }) Nothing
-      (bodyRes, bodyView) <- mreq textField (FieldSettings { fsLabel = "Body", 
+      (bodyRes, bodyView) <- mreq textareaField (FieldSettings { fsLabel = "Body", 
                 fsTooltip = Nothing,
                 fsId = Nothing,
                 fsName = Nothing,

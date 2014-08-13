@@ -8,13 +8,15 @@
         env.user;
         env.destinationPublicKey; 
         env.pkint;
-        
+        env.foundUser = false;
+        // Gets user information from server
         this.getUserInfo = function(){
                  $http.get('http://localhost:3000/api/user/fullinfo/' + $scope.to).success(function(data){                 
                  env.user = data
+                 env.foundUser = true;
          });
         };
-
+        
         //Sends an encrypted message
         this.saveMessage = function(){ 
         
@@ -59,13 +61,12 @@
               env.messages.push(env.message);
               $scope.body = $scope.to = null;
             });
-          });                         
-
-          
-          
-
-         
+          });                                 
         };
+        // Returns true or false whether user is found 
+        this.userIsFound = function() {
+          return(this.foundUser);
+        }
         
     }]);
     
