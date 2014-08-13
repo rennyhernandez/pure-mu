@@ -54,7 +54,7 @@ messageForm owner maybeRecipient extra = do
                 fsName = Nothing,
                 fsAttrs = [("ng-model","to"), ("ng-change","compose.getUserInfo()"), ("ng-disabled","compose.userIsFound()")]
                }) Nothing
-      (bodyRes, bodyView) <- mreq textField (FieldSettings { fsLabel = "Body", 
+      (bodyRes, bodyView) <- mreq textareaField (FieldSettings { fsLabel = "Body", 
                 fsTooltip = Nothing,
                 fsId = Nothing,
                 fsName = Nothing,
@@ -82,8 +82,8 @@ messageForm owner maybeRecipient extra = do
       salt <- liftIO $ generateSalt 32
       let secretKey  =  fmap (fmap ((\password -> (sha256PBKDF2 password salt 4 32))  . BC.pack . T.unpack)) passRes
 
-      let messageRes = Message  <$> fmap Just bodyRes --body Text 
-                                 <*> fmap T.length bodyRes  --length Int
+      let messageRes = Message  <$> fmap (Just . unTextarea) bodyRes --body Text 
+                                 <*> fmap (T.length . unTextarea) bodyRes  --length Int
                                  <*> pure owner -- owner UserId
                                  <*> recipient -- conversationWith UserId Maybe
                                  <*> pure owner -- sender UserId  
