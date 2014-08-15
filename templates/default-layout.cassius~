@@ -1,4 +1,51 @@
 #message
   border: 1px solid #FFCB00
+  background-color: #FFE373
   color: black
   
+#sidebar
+  color: black 
+
+#wrapper 
+  padding-left: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+  
+#sidebar-wrapper
+  z-index: 1000
+  position: fixed
+  width: 200px
+  height: 100%
+  left: 250px
+  margin-left: -250px
+  background: #000;
+  -webkit-transition: all 0.5s ease
+  -moz-transition: all 0.5s ease
+  -o-transition: all 0.5s ease
+  transition: all 0.5s ease
+
+#topbar
+  index-z: 1000;
+#page-content-wrapper 
+  width: 100%
+  padding: 15px
+
+.sidebar-nav
+  position: absolute
+  top: 25px
+  width: 250px
+  margin: 0
+  padding: 0
+  list-style: none
+
+.sidebar-nav li a 
+    display: block
+    text-decoration: none
+    color: white
+
+.sidebar-nav li a:hover
+  color: #999999
+
+
