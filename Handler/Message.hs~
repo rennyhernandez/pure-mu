@@ -17,7 +17,7 @@ import Data.Aeson.Types (parse)
 
 
 import Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as BC (pack, unpack)
+import qualified Data.ByteString.Char8 as BC (pack, unpack, length)
 import qualified Database.Esqueleto as E hiding (SqlBackend)
 
 
@@ -27,8 +27,7 @@ import qualified Data.ByteString.Base16 as B16
 import Crypto.Random
 import Crypto.PBKDF.ByteString (sha256PBKDF2)
 
-  
-
+import Utils
 
 -- Form widget to manipulate message creation from List Message User.
 messageForm :: UserId -> Maybe UserId -> Html -> MForm Handler (FormResult (Message, Maybe ByteString), Widget)
@@ -62,7 +61,7 @@ messageForm owner maybeRecipient extra = do
                 fsName = Nothing,
                 fsAttrs = [("ng-model","body"),                            
                            ("rows","4"),
-                           ("cols","1000")]
+                           ("cols","100")]
                }) Nothing
       (passRes, passView) <- mopt passwordField "Secret Key" Nothing
       recipient <- case maybeRecipient of -- evaluates if there is a recipient value from argument
@@ -308,17 +307,25 @@ postMessageSendR = do
       let (J.Success body) =  J.fromJSON (jsonRes  ! "body")  :: J.Result ByteString
       let (J.Success to)  = J.fromJSON (jsonRes ! "to") :: J.Result Text
       let (J.Success from) =  J.fromJSON (jsonRes  ! "from")  :: J.Result Text
+      let (J.Success authmessage) =  J.fromJSON (jsonRes  ! "authMessage")  :: J.Result Text
       maybeUserTo <- runDB $ getBy (UniqueUsername to)
       maybeUserFrom <- runDB $ getBy (UniqueUsername from)
-    --TODO: Same as before, this must be refactored and treated as cases
+    --TODO: Same as before, this must be refactored and cases must be taken in account
+    
       let (Entity keyTo valueTo) = fromJust maybeUserTo
       let (Entity keyFrom valueFrom) = fromJust maybeUserFrom
-{-      let mensaje = Mensaje {
+      let mensaje = Mensaje {
                               mensajeBody = Just body,
-                              mensajeLength = T.length body,
-                              mensajeCreatedAt = 
+                              mensajeLength = BC.length body,
+                              mensajeCreatedAt = parseJSTimestamp createdAtTS,
+                              mensajeMedia = Nothing,
+                              mensajeConversationWith = Nothing,
+                              mensajeIsNew = True,
+                              mensajeRecipient = Just keyTo, 
+                              mensajeSender = keyFrom,
+                              mensajeOwner = keyFrom
                             }
-  -}    
+      newMess <- runDB $ insert mensaje
       returnJson jsonRes
     J.Success _ -> error "unspecified datatype"
   
