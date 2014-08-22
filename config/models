@@ -38,8 +38,8 @@ Contact
  UniqueContact list contact
  deriving Typeable Show
     
-Message 
-  body Text Maybe
+Message json
+  body ByteString Maybe
   length Int
   owner UserId 
   conversationWith UserId Maybe  
@@ -77,7 +77,5 @@ Mensaje json
   isNew Bool
   conversationWith UserId Maybe
   media Media Maybe
-  
-  
   deriving Show Typeable
  -- By default this file is used in Model.hs (which is imported by Foundation.hs)

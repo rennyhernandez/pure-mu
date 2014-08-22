@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-} 
+{-# LANGUAGE DataKinds #-} 
 
 module Handler.Message where
 
@@ -84,9 +85,10 @@ messageForm owner maybeRecipient extra = do
       now  <- liftIO getCurrentTime
       salt <- liftIO $ generateSalt 32
       let secretKey  =  fmap (fmap ((\password -> (sha256PBKDF2 password salt 4 32))  . BC.pack . T.unpack)) passRes
-
-      let messageRes = Message  <$> fmap (Just . unTextarea) bodyRes --body Text 
-                                 <*> fmap (T.length . unTextarea) bodyRes  --length Int
+      let body =  fmap (Just . BC.pack . T.unpack . unTextarea) bodyRes
+      let length = fmap (T.length .  unTextarea)  bodyRes  --length Int 
+      let messageRes = Message  <$>  body --body Text 
+                                 <*> length --TODO: This must be a Maybe Value
                                  <*> pure owner -- owner UserId
                                  <*> recipient -- conversationWith UserId Maybe
                                  <*> pure owner -- sender UserId  
@@ -146,24 +148,27 @@ getMessageR messageId = do
       
 
 
-getMessagesR :: Handler Html
-getMessagesR = do
-  mid <- maybeAuthId 
-  case mid of 
-    Nothing -> redirect HomeR
-    Just userId -> do
---      entityMessages <- runDB $ selectList [MessageOwner ==. userId]   [Asc MessageCreatedAt]  
-      entityMessages <- runDB $ E.select $ 
-                      E.from $ \(message, sender) -> do 
-                      E.where_ (message E.^. MessageOwner E.==. E.val userId E.&&.                                
-                                 message E.^. MessageRecipient E.==. E.just (message E.^.  MessageOwner) E.&&. 
-                                 message E.^. MessageSender E.!=. E.val userId    E.&&.     
-                                 message E.^. MessageSender E.==. sender E.^. UserId
-                                 )
-                      E.orderBy [E.asc (message E.^. MessageCreatedAt)]
-                      return (message, sender)               
-      defaultLayout $ do 
-        $(widgetFile "inbox")
+getMessagesR :: Handler TypedContent
+getMessagesR = do 
+    mid <- maybeAuthId 
+    case mid of 
+      Nothing -> redirect HomeR
+      Just userId -> do
+  --      entityMessages <- runDB $ selectList [MessageOwner ==. userId]   [Asc MessageCreatedAt]  
+        entityMessages <- runDB $ E.select $ 
+                        E.from $ \(message, sender) -> do 
+                        E.where_ (message E.^. MessageOwner E.==. E.val userId E.&&.                                
+                                   message E.^. MessageRecipient E.==. E.just (message E.^.  MessageOwner) E.&&. 
+                                   message E.^. MessageSender E.!=. E.val userId    E.&&.     
+                                   message E.^. MessageSender E.==. sender E.^. UserId
+                                   )
+                        E.orderBy [E.asc (message E.^. MessageCreatedAt)]
+                        return (message, sender)  
+        liftIO $ print $ map (entityVal . fst) entityMessages                    
+        selectRep $ do 
+          provideRep $ defaultLayout $(widgetFile "inbox")
+--          provideJson $ object [ ("action" :: Text) .= ("getMessages" :: Text)]
+          provideJson $ map (entityVal . fst) entityMessages
 
 -- Handles new chat request
 
@@ -183,6 +188,7 @@ getNewConversationR = do
     Nothing  -> do
       setMessage $ toHtml ("Please, sign in to your account" :: Text)
       redirect HomeR      
+      
 -- Creates a new message and conversation (conversation has many message)
 postNewConversationR :: Handler Html
 postNewConversationR = do 
@@ -223,7 +229,6 @@ postNewConversationR = do
                                             messageMedia = Nothing,
                                             messageFromChat = Just newChatIdDup
                                             }
-          liftIO $ print $ messageRes
           redirect (ConversationR $ fromJust $ messageRecipient messageRes)
         _              -> do
           setMessage $ toHtml ("There's been an error while sending your message. Please, try again" :: Text)
@@ -310,22 +315,26 @@ postMessageSendR = do
       let (J.Success authmessage) =  J.fromJSON (jsonRes  ! "authMessage")  :: J.Result Text
       maybeUserTo <- runDB $ getBy (UniqueUsername to)
       maybeUserFrom <- runDB $ getBy (UniqueUsername from)
-    --TODO: Same as before, this must be refactored and cases must be taken in account
-    
+    --TODO: Same as before, this must be refactored and cases must be taken in account      
       let (Entity keyTo valueTo) = fromJust maybeUserTo
       let (Entity keyFrom valueFrom) = fromJust maybeUserFrom
-      let mensaje = Mensaje {
-                              mensajeBody = Just body,
-                              mensajeLength = BC.length body,
-                              mensajeCreatedAt = parseJSTimestamp createdAtTS,
-                              mensajeMedia = Nothing,
-                              mensajeConversationWith = Nothing,
-                              mensajeIsNew = True,
-                              mensajeRecipient = Just keyTo, 
-                              mensajeSender = keyFrom,
-                              mensajeOwner = keyFrom
+    --TODO: Conversation must be created if not exist. Otherwise, fetch it and add key value to 
+      
+      let message = Message {
+                              messageBody = Just body,
+                              messageLength = BC.length body,
+                              messageCreatedAt = parseJSTimestamp createdAtTS,
+                              messageMedia = Nothing,
+                              messageConversationWith = Nothing,
+                              messageIsNew = True,
+                              messageRecipient = Just keyTo, 
+                              messageSender = keyFrom,
+                              messageOwner = keyFrom,
+                              messageFromChat = Nothing,
+                              messageSecretKey = Nothing,
+                              messageSalt = Nothing
                             }
-      newMess <- runDB $ insert mensaje
+      newMess <- runDB $ insert message
       returnJson jsonRes
     J.Success _ -> error "unspecified datatype"
   
