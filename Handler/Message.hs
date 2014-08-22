@@ -319,21 +319,32 @@ postMessageSendR = do
       let (Entity keyTo valueTo) = fromJust maybeUserTo
       let (Entity keyFrom valueFrom) = fromJust maybeUserFrom
     --TODO: Conversation must be created if not exist. Otherwise, fetch it and add key value to 
-      
+      maybeChat <- runDB $ getBy (UniqueChat keyTo keyTo)
+      chat <- case maybeChat of 
+        Just (Entity chatId _) -> return chatId 
+ 
+        Nothing -> do 
+          chatId <- runDB $ insert $ Chat { chatOwner = keyTo,
+                                             chatRecipient = keyTo,
+                                             chatIsNew = True,
+                                             chatKey = Nothing,
+                                             chatCreatedAt = parseJSTimestamp createdAtTS
+                                             }
+          return chatId      
       let message = Message {
-                              messageBody = Just body,
-                              messageLength = BC.length body,
-                              messageCreatedAt = parseJSTimestamp createdAtTS,
-                              messageMedia = Nothing,
-                              messageConversationWith = Nothing,
-                              messageIsNew = True,
-                              messageRecipient = Just keyTo, 
-                              messageSender = keyFrom,
-                              messageOwner = keyFrom,
-                              messageFromChat = Nothing,
-                              messageSecretKey = Nothing,
-                              messageSalt = Nothing
-                            }
+                          messageBody = Just body,
+                          messageLength = BC.length body,
+                          messageCreatedAt = parseJSTimestamp createdAtTS,
+                          messageMedia = Nothing,
+                          messageConversationWith = Just keyFrom,
+                          messageIsNew = True,
+                          messageRecipient = Just keyTo, 
+                          messageSender = keyFrom,
+                          messageOwner = keyTo,
+                          messageFromChat = Just chat,
+                          messageSecretKey = Nothing,
+                          messageSalt = Nothing
+                          }
       newMess <- runDB $ insert message
       returnJson jsonRes
     J.Success _ -> error "unspecified datatype"

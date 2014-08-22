@@ -8,7 +8,7 @@ $maybe recipient <- maybeRecipient
       <b> From: #{userLogin sender}  
       <span style="color:grey;">
         (#{show $ messageCreatedAt message})
-      <p> #{show $ fromJust $  messageBody message}
+      <p> #{BC.unpack $ fromJust $  messageBody message}
       
   <form method=post action=@{NewMessageR recipientId} enctype=#{enctype}>
     ^{widget}
