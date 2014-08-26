@@ -1,17 +1,20 @@
-$maybe recipient <- maybeRecipient
-  <h3> Chat with #{userLogin recipient}
-  $if null conversation
-    No messages here. Start chatting right now!
-  $else
-    $forall ((Entity _ message), (Entity _ sender)) <- conversation
+<div ng-controller="DecryptController as decrypt">
+  $maybe recipient <- maybeRecipient
+    <h3> Chat with #{userLogin recipient}
+    $if null conversation
+      No messages here. Start chatting right now!
+    $else
+      $forall ((Entity _ message), (Entity _ sender)) <- conversation
 
-      <b> From: #{userLogin sender}  
-      <span style="color:grey;">
-        (#{show $ messageCreatedAt message})
-      <p> #{fromJust $  messageBody message}
-      
-  <form method=post action=@{NewMessageR recipientId} enctype=#{enctype}>
-    ^{widget}
+        <b> From: #{userLogin sender}  
+        <span style="color:grey;">
+          (#{show $ messageCreatedAt message})
+        <div .message> #{BC.unpack $ fromJust $  messageBody message}
+        
+    <form method=post action=@{NewMessageR recipientId} enctype=#{enctype} ng-submit="decrypt.decryptMessage()">
+      <label for="passwd"> Password
+      <input id="passwd" type="text" ng-change="decrypt.isChanging()" ng-model="password">
+      ^{widget}
 
 
 

@@ -1,0 +1,6 @@
+.message 
+  height: auto
+  width: 550px
+  word-break: break-all
+  
+

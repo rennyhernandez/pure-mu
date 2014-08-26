@@ -130,8 +130,10 @@ getConversationR recipientId = do
           defaultLayout $ do 
             addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
             addScript $ StaticR js_forge_forge_bundle_js 
-            $(widgetFile "conversation")        
-            
+            addScript $ StaticR js_angular_js 
+            addScript $ StaticR js_controllers_app_js  
+            --addScript $ StaticR js_controllers_decrypt_js          
+            $(widgetFile "conversation")             
         Nothing -> redirectError "You cannot contact this user right now" MessagesR
     Nothing -> redirect MessagesR
 
@@ -166,7 +168,12 @@ getMessagesR = do
                         return (message, sender)  
         liftIO $ print $ map (entityVal . fst) entityMessages                    
         selectRep $ do 
-          provideRep $ defaultLayout $(widgetFile "inbox")
+          provideRep $ defaultLayout $ do
+          addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+          addScript $ StaticR js_forge_forge_bundle_js
+          addScript $ StaticR js_angular_js 
+          addScript $ StaticR js_controllers_app_js          
+          $(widgetFile "inbox")
 --          provideJson $ object [ ("action" :: Text) .= ("getMessages" :: Text)]
           provideJson $ map (entityVal . fst) entityMessages
 
@@ -321,7 +328,7 @@ postMessageSendR = do
     --TODO: Conversation must be created if not exist. Otherwise, fetch it and add key value to 
       maybeChat <- runDB $ getBy (UniqueChat keyTo keyTo)
       chat <- case maybeChat of 
-        Just (Entity chatId chatVal) -> return chatId 
+        Just (Entity chatId _) -> return chatId 
  
         Nothing -> do 
           chatId <- runDB $ insert $ Chat { chatOwner = keyTo,

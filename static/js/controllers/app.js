@@ -34,25 +34,25 @@
 
           
           // Get destination public key
-          $http.get('http://localhost:3000/api/publickey/' + this.user.login).success(function(pkdata){          
+          $http.get('http://localhost:3000/api/publickey/' + this.user.login).success(function(data){          
+              
+            //Retrieve public_n value, decode it from Base64 and create a new BigInt             
 
-            //Retrieve public_n value, decode it from Base16 and create a new BigInt             
-
-
-            var public_e = pkdata.public_e.toString();
-            var public_n = forge.util.decode64(pkdata.public_n);
-            var exponent = new forge.jsbn.BigInteger(public_e,10);
-            env.pkint = new forge.jsbn.BigInteger(public_n, 10);
+            console.log('http://localhost:3000/api/publickey/' + env.user.login);
+            console.log(data);
+            var jsn = forge.util.decode64(data.public_n);
+            var exponent = new forge.jsbn.BigInteger(data.public_e.toString(), 10);
+            var public_n = new forge.jsbn.BigInteger(jsn, 10);
             //Recreate Public Key 
-            env.destinationPublicKey = forge.pki.setRsaPublicKey(env.pkint, exponent);
+            var destinationPublicKey = forge.pki.setRsaPublicKey(public_n, exponent);
 
             //encrypt message ... 
-            env.ciphertext = env.destinationPublicKey.encrypt(forge.util.createBuffer(env.message.body));
+            env.ciphertext = destinationPublicKey.encrypt(forge.util.createBuffer(env.message.body).getBytes());
             env.toAuth = env.ciphertext + "+" +  env.message.to + "+" + env.message.from + "+" + env.message.createdAt;
             env.ciphertext64 = forge.util.encode64(env.ciphertext);
-            
-            //... then, sign. 
-            
+
+            //TODO:... then, sign. 
+            console.log(env.ciphertext64);
             // Save message
             this.datapacket = {
                      to: env.user.login,
@@ -73,9 +73,41 @@
         // Returns true or false whether user is found 
         this.userIsFound = function() {
           return(this.foundUser);
-        }
-        
+        };      
     }]);
+    
+  app.controller("DecryptController", ['$scope', '$http', function($scope, $http){
+    this.loggedOnUser = "saray";
+    this.password;
+    this.decryptMessage = function(){
+      console.log($(".message").html());
+    };
+    
+    this.isChanging = function(){
+      var messages = $(".message");
+
+      if($scope.password == "cambiame"){
+        $http.get('http://localhost:3000/api/privatekey/' + this.loggedOnUser).success(function(data){
+          var exponent = data.private_pub.public_e;
+          var private_d = new forge.jsbn.BigInteger(forge.util.decode64(data.private_d), 10);
+          var public_n = new forge.jsbn.BigInteger(forge.util.decode64(data.private_pub.public_n), 10);
+          
+          var private_key = forge.pki.setRsaPrivateKey(public_n, exponent, private_d);
+          
+          messages.each(function(){
+            var ciphertext = forge.util.decode64($(this).html());
+            console.log(ciphertext);
+            console.log(private_key);
+            var deciphered = private_key.decrypt(ciphertext);
+            $(this).text(deciphered);
+            
+          });
+        });
+   
+      }
+     
+    };
+  }]);
     
     
 })();
