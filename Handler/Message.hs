@@ -33,21 +33,9 @@ import Utils
 -- Form widget to manipulate message creation from List Message User.
 messageForm :: UserId -> Maybe UserId -> Html -> MForm Handler (FormResult (Message, Maybe ByteString), Widget)
 messageForm owner maybeRecipient extra = do
-  mu <- lift $  maybeAuth
+  mu <- lift $ maybeAuth
   case mu of 
     Just (Entity _ userSession) -> do
-    {-
-    -- Retrieve the authenticated user's contact list 
-      contacts' <- lift $ runDB $ E.select $
-              E.from $ \(list,contact,user) -> do
-              E.where_ $ (list E.^. ListOwner E.==. E.val owner E.&&.
-                         contact E.^. ContactList E.==. list E.^. ListId E.&&.
-                         user E.^. UserId E.==. contact E.^. ContactContact)
-              return (user E.^. UserLogin)  
-      -- Extract  login and prepare it in a 2 tuple for select field rendering
-      let contacts = map (\login -> (E.unValue login, E.unValue login)) contacts'
-      liftIO $ print $ contacts
-      let contacts'' = [("Hello" :: Text, "World" :: Text)]-}
       (recipientRes, recipientView) <- mreq textField (FieldSettings { fsLabel = "Contacts", 
                 fsTooltip = Nothing,
                 fsId = Nothing,
@@ -65,8 +53,9 @@ messageForm owner maybeRecipient extra = do
                            ("cols","100")]
                }) Nothing
       (passRes, passView) <- mopt passwordField "Secret Key" Nothing
-      recipient <- case maybeRecipient of -- evaluates if there is a recipient value from argument
-       -- if there is a value in the 'recipient' input field, it returns the value,  wrapped with Maybe and FormResult Functors. 
+      -- evaluates if there is a recipient value from argument (the message form is being generated from a created conversation
+      recipient <- case maybeRecipient of 
+      -- if there is a value in the 'recipient' input field, it returns the value,  wrapped with Maybe and FormResult Functors. 
         Just res -> return $ FormSuccess (Just res)
       -- If there is nothing in the maybeRecipient (the conversation is new), it creates a new conversation with the intended recipient
         Nothing -> do 
@@ -121,18 +110,11 @@ getConversationR recipientId = do
                                      message E.^. MessageSender E.==. sender E.^. UserId)
                           E.orderBy [E.asc (message E.^. MessageCreatedAt)]
                           return (message, sender)               
-    {-      if (null conversation)
-            then do
-              
-              redirect MessagesR        
-            else do-}
           (widget, enctype) <- generateFormPost $ messageForm userId (Just recipientId)
           defaultLayout $ do 
             addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
             addScript $ StaticR js_forge_forge_bundle_js 
-            addScript $ StaticR js_angular_js 
-            --addScript $ StaticR js_controllers_app_js  
-            --addScript $ StaticR js_controllers_decrypt_js          
+            addScript $ StaticR js_angular_js         
             $(widgetFile "conversation")             
         Nothing -> redirectError "You cannot contact this user right now" MessagesR
     Nothing -> redirect MessagesR
@@ -156,7 +138,6 @@ getMessagesR = do
     case mid of 
       Nothing -> redirect HomeR
       Just userId -> do
-  --      entityMessages <- runDB $ selectList [MessageOwner ==. userId]   [Asc MessageCreatedAt]  
         entityMessages <- runDB $ E.select $ 
                         E.from $ \(message, sender) -> do 
                         E.where_ (message E.^. MessageOwner E.==. E.val userId E.&&.                                
@@ -166,7 +147,6 @@ getMessagesR = do
                                    )
                         E.orderBy [E.asc (message E.^. MessageCreatedAt)]
                         return (message, sender)  
-        liftIO $ print $ map (entityVal . fst) entityMessages                    
         selectRep $ do 
           provideRep $ defaultLayout $ do
             addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
@@ -284,18 +264,7 @@ generateSalt byteSize = do
     Right t -> return t
   return salt
 
-{-
-postMessageSendR :: Handler Value
-postMessageSendR = do
-  now <- liftIO $ getCurrentTime
-  d <- runInputPost $ Mensaje <$> iopt textField "body"
-                              <*> fmap (T.length . fromJust) (iopt textField "body") 
-                              <*> pure now
-                              <*> pure True
-                              <*> pure Nothing
-  liftIO $ print d
-  returnJson d
--}
+
 
 {-
 postMessageSend receives a POST request. The data received with the request has the form: 

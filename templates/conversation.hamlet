@@ -1,3 +1,5 @@
+<script>
+  window.to = '#{userLogin recipient}'
 <div ng-controller="DecryptController as decrypt">
   $maybe recipient <- maybeRecipient
     <h3> Chat with #{userLogin recipient}
@@ -10,11 +12,14 @@
         <span style="color:grey;">
           (#{show $ messageCreatedAt message})
         <div .message> #{BC.unpack $ fromJust $  messageBody message}
-        
-    <form method=post action=@{NewMessageR recipientId} enctype=#{enctype} ng-submit="decrypt.decryptMessage()">
-      <label for="passwd"> Password
-      <input id="passwd" type="text" ng-change="decrypt.isChanging()" ng-model="password">
-      ^{widget}
+    
+      <p>
+        <label for="passwd"> Password
+        <input id="passwd" type="text" ng-change="decrypt.isChanging()" ng-model="password"> 
+<div ng-controller="MainController as compose">         
+  <form enctype=#{enctype} ng-submit="compose.saveMessage()"> 
+    <input type="hidden" ng-model="to" value="#{userLogin recipient}">   
+    ^{widget}
 
 
 

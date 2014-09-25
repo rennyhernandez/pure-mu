@@ -1,11 +1,9 @@
 <p> #{extra}
-
-
 <div>
   <div>
   
   $maybe _ <- maybeRecipient
-    <!-- write your message here --> 
+    
   $nothing      
     <div>
       To:
