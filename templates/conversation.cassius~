@@ -1,6 +1,6 @@
 .message 
   height: auto
-  cols: 50
+  width: 550px
   word-break: break-all
   
 

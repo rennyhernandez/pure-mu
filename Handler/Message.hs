@@ -131,7 +131,7 @@ getConversationR recipientId = do
             addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
             addScript $ StaticR js_forge_forge_bundle_js 
             addScript $ StaticR js_angular_js 
-            addScript $ StaticR js_controllers_app_js  
+            --addScript $ StaticR js_controllers_app_js  
             --addScript $ StaticR js_controllers_decrypt_js          
             $(widgetFile "conversation")             
         Nothing -> redirectError "You cannot contact this user right now" MessagesR
@@ -172,7 +172,6 @@ getMessagesR = do
             addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
             addScript $ StaticR js_forge_forge_bundle_js
             addScript $ StaticR js_angular_js 
-            addScript $ StaticR js_controllers_app_js          
             $(widgetFile "inbox")
 --          provideJson $ object [ ("action" :: Text) .= ("getMessages" :: Text)]
           provideJson $ map (entityVal . fst) entityMessages
@@ -189,14 +188,14 @@ getNewConversationR = do
         addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
         addScript $ StaticR js_forge_forge_bundle_js
         addScript $ StaticR js_angular_js 
-        addScript $ StaticR js_controllers_app_js  
+        --addScript $ StaticR js_controllers_app_js  
         $(widgetFile "compose") 
          
     Nothing  -> do
       setMessage $ toHtml ("Please, sign in to your account" :: Text)
       redirect HomeR      
       
--- Creates a new message and conversation (conversation has many message)
+-- Creates a new message and conversation (conversation has many messages)
 postNewConversationR :: Handler Html
 postNewConversationR = do 
   mu <- maybeAuthId 

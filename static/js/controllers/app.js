@@ -6,6 +6,7 @@
         this.messages = [];
         env.ciphertext;
         env.user;
+        env.loggedUser = 'renny';
         env.destinationPublicKey; 
         env.pkint;
         env.foundUser = false;
@@ -26,7 +27,7 @@
           this.now = Date.now();
           this.message = { 
                             to: env.user.login,
-                            from: 'renny', //TODO: change value with username in session
+                            from: env.loggedUser, //TODO: change value with username in session
                             body: $scope.body,                             
                             createdAt: this.now
                           }
@@ -38,8 +39,8 @@
               
             //Retrieve public_n value, decode it from Base64 and create a new BigInt             
 
-            console.log('http://localhost:3000/api/publickey/' + env.user.login);
-            console.log(data);
+
+
             var jsn = forge.util.decode64(data.public_n);
             var exponent = new forge.jsbn.BigInteger(data.public_e.toString(), 10);
             var public_n = new forge.jsbn.BigInteger(jsn, 10);
@@ -56,7 +57,7 @@
             // Save message
             this.datapacket = {
                      to: env.user.login,
-                     from: 'renny', //TODO: change value with username in session
+                     from: env.loggedUser, //TODO: change value with username in session
                      body: env.ciphertext64,
                      createdAt: env.message.createdAt,
                      authMessage: env.toAuth //TODO: Authenticate this string
@@ -77,7 +78,7 @@
     }]);
     
   app.controller("DecryptController", ['$scope', '$http', function($scope, $http){
-    this.loggedOnUser = "saray";
+    this.loggedOnUser = "saray"; // TODO: Logged in user 
     this.password;
     this.decryptMessage = function(){
       console.log($(".message").html());
@@ -86,7 +87,7 @@
     this.isChanging = function(){
       var messages = $(".message");
 
-      if($scope.password == "cambiame"){
+      if($scope.password == "cambiame"){ //TODO: Must be modified to any password
         $http.get('http://localhost:3000/api/privatekey/' + this.loggedOnUser).success(function(data){
           var exponent = data.private_pub.public_e;
           var private_d = new forge.jsbn.BigInteger(forge.util.decode64(data.private_d), 10);

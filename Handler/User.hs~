@@ -9,7 +9,7 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL 
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy.Char8 as BCL
-import qualified Codec.Binary.Base64.String as B64
+  import qualified Codec.Binary.Base64.String as B64
 import Crypto.Types.PubKey.RSA
 import Codec.Crypto.RSA
 import Crypto.PasswordStore
@@ -152,7 +152,7 @@ getFullUserInfoR username = do
                 user SQL.^. UserId SQL.==. keyring SQL.^. KeyringOwner)
     return(user, keyring SQL.^. KeyringPublicKey)
   let fullUserInfo = head fullUserInfos -- SQL.select returns an array of results, taking first element
-  now <- getTimestamp 
+  now <- liftIO getTimestamp 
   liftIO $ print now
   liftIO $ print fullUserInfo
   returnJson $ (entityVal . fst)  fullUserInfo

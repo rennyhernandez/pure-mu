@@ -1,7 +1,8 @@
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Foundation where
 import Control.Applicative ((<$>), (<*>), pure)
@@ -24,6 +25,7 @@ import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
 import Text.Hamlet (hamletFile)
+import Text.Julius
 import Yesod.Core.Types (Logger)
 import Data.Time.Clock (getCurrentTime)
 import qualified Data.ByteString as B
@@ -36,6 +38,8 @@ import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import qualified Data.Aeson as J
 import qualified Data.ByteString as B
 import qualified Codec.Binary.Base64.String as S64
+import Data.Maybe (fromJust, fromMaybe)
+
 
 --import Model (User(..), List (..))
 
@@ -84,6 +88,8 @@ instance Yesod App where
         master <- getYesod
         mmsg <- getMessage
         muser <- maybeAuth
+        let (Entity loggedUserId loggedUser)  muser 
+       
 
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and

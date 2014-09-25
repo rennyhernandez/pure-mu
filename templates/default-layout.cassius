@@ -26,8 +26,16 @@
   -o-transition: all 0.5s ease
   transition: all 0.5s ease
 
-#topbar
+.topbar
   z-index: 1000
+  position: fixed
+  width: 100%
+  background: white
+  height: 30px
+  
+
+.navbar
+  width: 980px
   text-align: right
   
 #page-content-wrapper 

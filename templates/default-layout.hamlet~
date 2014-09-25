@@ -1,9 +1,9 @@
 $maybe (Entity loggedUserId loggedUser) <- muser
-  <div #topbar> 
-    Logged in as: 
-    #{userName loggedUser}
-    (#{userEmail loggedUser}) 
-    <a href=@{AuthR LogoutR}> Sign Out
+  <.topbar>
+    <.navbar>
+      #{userName loggedUser}
+      (#{userEmail loggedUser}) 
+      <a href=@{AuthR LogoutR}> Sign Out
   <div #sidebar-wrapper>
     <ul .sidebar-nav> 
       <li>
