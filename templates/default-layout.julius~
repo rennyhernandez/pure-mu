@@ -6,7 +6,7 @@
       this.messages = [];
       env.ciphertext;
       env.user;
-      env.logged = "#{rawJS $ userLogin loggedUser}"
+      env.logged = "#{rawJS $ loggedUsername}"
       console.log(env.logged);
       env.destinationPublicKey; 
       env.pkint;
@@ -80,6 +80,7 @@
   }]);
   
 app.controller("DecryptController", ['$scope', '$http', function($scope, $http){
+  var env = this;
   env.loggedUser = "#{rawJS $ userLogin loggedUser}"
   console.log(env.loggedUser);
   this.password;

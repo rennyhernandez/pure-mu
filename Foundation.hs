@@ -88,8 +88,10 @@ instance Yesod App where
         master <- getYesod
         mmsg <- getMessage
         muser <- maybeAuth
-        let (Entity loggedUserId loggedUser)  muser 
-       
+        --let (Entity loggedUserId loggedUser)  muser 
+        loggedUsername <- case muser of 
+          Just (Entity id user) -> return $ userLogin user
+          Nothing -> return ("loggedOff" :: Text)
 
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and
@@ -97,6 +99,7 @@ instance Yesod App where
         -- value passed to hamletToRepHtml cannot be a widget, this allows
         -- you to use normal widget features in default-layout.
 
+        -- TODO: Change page template whether user is logged
         pc <- widgetToPageContent $ do
             $(combineStylesheets 'StaticR
                 [ css_normalize_css

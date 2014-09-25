@@ -88,9 +88,10 @@ instance Yesod App where
         master <- getYesod
         mmsg <- getMessage
         muser <- maybeAuth
-
-          
-       
+        --let (Entity loggedUserId loggedUser)  muser 
+        loggedUsername <- case muser of 
+          Just (Entity id user) -> return $ userLogin user
+          Nothing -> return ("loggedOff" :: Text)
 
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and
