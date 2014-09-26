@@ -18,7 +18,7 @@
         <input id="passwd" type="text" ng-change="decrypt.isChanging()" ng-model="password"> 
 <div ng-controller="MainController as compose">         
   <form enctype=#{enctype} ng-submit="compose.saveMessage()"> 
-    <input type="text" ng-model="to" value="#{userLogin recipient}">   
+    <input type="hidden" ng-model="to" value="#{userLogin recipient}">   
     ^{widget}
 
 

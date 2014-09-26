@@ -9,6 +9,7 @@
       env.logged = "#{rawJS $ loggedUsername}"
       env.destinationPublicKey; 
       env.pkint;
+      env.now;
       env.foundUser = false;
       env.message;
       // Gets user information from server
@@ -32,6 +33,21 @@
             $http.get('http://localhost:3000/api/user/fullinfo/' + $scope.to).success(function(data){                 
               env.user = data
               env.foundUser = true;
+              env.user;
+              env.now = Date.now();
+              console.log(env.logged);
+              env.message = { 
+                            to: env.user.login,
+                            from: env.logged, //TODO: change value with username in session
+                            body: $scope.body,                             
+                            createdAt: this.now
+                          }
+              this.toAuth;
+          });
+        }
+        else 
+        {
+              env.foundUser = true;
               this.user;
               this.now = Date.now();
               console.log(env.logged);
@@ -42,95 +58,46 @@
                             createdAt: this.now
                           }
               this.toAuth;
-             // Get destination public key
-              $http.get('http://localhost:3000/api/publickey/' + env.user.login).success(function(data){          
-                  
-                //Retrieve public_n value, decode it from Base64 and create a new BigInt             
 
-                console.log('http://localhost:3000/api/publickey/' + env.user.login);
-                console.log(data);
-                var jsn = forge.util.decode64(data.public_n);
-                var exponent = new forge.jsbn.BigInteger(data.public_e.toString(), 10);
-                var public_n = new forge.jsbn.BigInteger(jsn, 10);
-                //Recreate Public Key 
-                var destinationPublicKey = forge.pki.setRsaPublicKey(public_n, exponent);
-
-                //encrypt message ... 
-                env.ciphertext = destinationPublicKey.encrypt(forge.util.createBuffer(env.message.body).getBytes());
-                env.toAuth = env.ciphertext + "+" +  env.message.to + "+" + env.message.from + "+" + env.message.createdAt;
-                env.ciphertext64 = forge.util.encode64(env.ciphertext);
-
-                //TODO:... then, sign. 
-                console.log(env.ciphertext64);
-                // Save message
-                this.datapacket = {
-                         to: env.user.login,
-                         from: env.logged, //TODO: change value with username in session
-                         body: env.ciphertext64,
-                         createdAt: env.message.createdAt,
-                         authMessage: env.toAuth //TODO: Authenticate this string
-                };
-                
-                $http.post('http://localhost:3000/api/message/send', this.datapacket).
-                success(function(data, status, headers, config) {
-                  env.messages.push(env.message);
-                  $scope.body = $scope.to = null;
-                  env.foundUser = false;
-                });
-              });  
-              });
-          }
-        else 
-          {
-              env.user = data
-              env.foundUser = true;
-              this.user;
-              this.now = Date.now();
-              console.log(env.logged);
-              this.message = { 
-                            to: env.user.login,
-                            from: env.logged, //TODO: change value with username in session
-                            body: $scope.body,                             
-                            createdAt: this.now
-                          }
-              this.toAuth;
-            // Get destination public key
-            $http.get('http://localhost:3000/api/publickey/' + this.user.login).success(function(data){          
-                
-              //Retrieve public_n value, decode it from Base64 and create a new BigInt             
-
-              console.log('http://localhost:3000/api/publickey/' + env.user.login);
-              console.log(data);
-              var jsn = forge.util.decode64(data.public_n);
-              var exponent = new forge.jsbn.BigInteger(data.public_e.toString(), 10);
-              var public_n = new forge.jsbn.BigInteger(jsn, 10);
-              //Recreate Public Key 
-              var destinationPublicKey = forge.pki.setRsaPublicKey(public_n, exponent);
-
-              //encrypt message ... 
-              env.ciphertext = destinationPublicKey.encrypt(forge.util.createBuffer(env.message.body).getBytes());
-              env.toAuth = env.ciphertext + "+" +  env.message.to + "+" + env.message.from + "+" + env.message.createdAt;
-              env.ciphertext64 = forge.util.encode64(env.ciphertext);
-
-              //TODO:... then, sign. 
-              console.log(env.ciphertext64);
-              // Save message
-              this.datapacket = {
-                       to: env.user.login,
-                       from: env.logged, //TODO: change value with username in session
-                       body: env.ciphertext64,
-                       createdAt: env.message.createdAt,
-                       authMessage: env.toAuth //TODO: Authenticate this string
-              };
+          }                              
+          // Get destination public key
+          $http.get('http://localhost:3000/api/publickey/' + this.user.login).success(function(data){          
               
-              $http.post('http://localhost:3000/api/message/send', this.datapacket).
+          //Retrieve public_n value, decode it from Base64 and create a new BigInt             
+
+          console.log('http://localhost:3000/api/publickey/' + env.user.login);
+          console.log(data);
+          var jsn = forge.util.decode64(data.public_n);
+          var exponent = new forge.jsbn.BigInteger(data.public_e.toString(), 10);
+          var public_n = new forge.jsbn.BigInteger(jsn, 10);
+          //Recreate Public Key 
+          var destinationPublicKey = forge.pki.setRsaPublicKey(public_n, exponent);
+
+          //encrypt message ... 
+          env.ciphertext = destinationPublicKey.encrypt(forge.util.createBuffer(env.message.body).getBytes());
+          env.toAuth = env.ciphertext + "+" +  env.message.to + "+" + env.message.from + "+" + env.message.createdAt;
+          env.ciphertext64 = forge.util.encode64(env.ciphertext);
+
+          //TODO:... then, sign. 
+          console.log(env.ciphertext64);
+          // Save message
+          this.datapacket = {
+                   to: env.user.login,
+                   from: env.logged, //TODO: change value with username in session
+                   body: env.ciphertext64,
+                   createdAt: env.message.createdAt,
+                   authMessage: env.toAuth //TODO: Authenticate this string
+          };
+          $http.get('http://localhost:3000/api/privatekey/' + env.logged).success(function(pkData){
+            $http.post('http://localhost:3000/api/message/send', this.datapacket).
               success(function(data, status, headers, config) {
+                console.log(pkData);
                 env.messages.push(env.message);
                 $scope.body = $scope.to = null;
                 env.foundUser = false;
               });
-            });  
-          }                               
+          });  
+        }); 
       };
       // Returns true or false whether user is found 
       this.userIsFound = function() {

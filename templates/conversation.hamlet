@@ -15,7 +15,7 @@
     
       <p>
         <label for="passwd"> Password
-        <input id="passwd" type="text" ng-change="decrypt.isChanging()" ng-model="password"> 
+        <input id="passwd" type="password" ng-change="decrypt.isChanging()" ng-model="password"> 
 <div ng-controller="MainController as compose">         
   <form enctype=#{enctype} ng-submit="compose.saveMessage()"> 
     <input type="hidden" ng-model="to" value="#{userLogin recipient}">   

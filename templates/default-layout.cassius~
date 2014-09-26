@@ -31,6 +31,7 @@
   position: fixed
   width: 100%
   background: white
+  height: 30px
   
 
 .navbar
@@ -39,7 +40,7 @@
   
 #page-content-wrapper 
   width: 100%
-  padding: 15px
+  padding: 45px
 
 .sidebar-nav
   position: absolute
@@ -48,11 +49,13 @@
   margin: 0
   padding: 0
   list-style: none
-
+.sidebar-nav li
+  width: inherit
 .sidebar-nav li a 
     display: block
     text-decoration: none
     color: white
+    width: inherit
 
 .sidebar-nav li a:hover
   color: #999999

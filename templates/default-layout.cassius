@@ -16,7 +16,7 @@
 #sidebar-wrapper
   z-index: 1000
   position: fixed
-  width: 200px
+  width: 150px
   height: 100%
   left: 250px
   margin-left: -250px
@@ -40,7 +40,7 @@
   
 #page-content-wrapper 
   width: 100%
-  padding: 15px
+  padding: 45px
 
 .sidebar-nav
   position: absolute
@@ -49,11 +49,13 @@
   margin: 0
   padding: 0
   list-style: none
-
+.sidebar-nav li
+  width: inherit
 .sidebar-nav li a 
     display: block
     text-decoration: none
     color: white
+    width: inherit
 
 .sidebar-nav li a:hover
   color: #999999

@@ -294,12 +294,12 @@ postMessageSendR = do
       let (Entity keyTo valueTo) = fromJust maybeUserTo
       let (Entity keyFrom valueFrom) = fromJust maybeUserFrom
     --TODO: Conversation must be created if not exist. Otherwise, fetch it and add key value to 
-      maybeChat <- runDB $ getBy (UniqueChat keyTo keyTo)
+      maybeChat <- runDB $ getBy (UniqueChat keyTo keyFrom)
       chat <- case maybeChat of 
         Just (Entity chatId _) -> return chatId 
  
         Nothing -> do 
-          chatId <- runDB $ insert $ Chat { chatOwner = keyTo,
+          chatId <- runDB $ insert $ Chat { chatOwner = keyFrom,
                                              chatRecipient = keyTo,
                                              chatIsNew = True,
                                              chatKey = Nothing,
