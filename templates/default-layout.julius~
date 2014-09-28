@@ -56,9 +56,7 @@
 
           }                              
           // Get destination public key
-          $http.get('http://localhost:3000/api/publickey/' + env.user.login).then(function(data){                        
-
-            $http.get('http://localhost:3000/api/privatekey/' + env.logged).then(function(pkData){
+          $http.get('http://localhost:3000/api/publickey/' + env.user.login).success(function(data){                        
             //Retrieve public_n value, decode it from Base64 and create a new BigInt             
             var jsn = forge.util.decode64(data.public_n);
             var exponent = new forge.jsbn.BigInteger(data.public_e.toString(), 10);
@@ -68,6 +66,7 @@
             //encrypt message ... 
             env.ciphertext = destinationPublicKey.encrypt(forge.util.createBuffer(env.message.body).getBytes());
             env.ciphertext64 = forge.util.encode64(env.ciphertext);
+            $http.get('http://localhost:3000/api/privatekey/' + env.logged).then(function(pkData){
               //TODO:... then, sign. 
               // Save message
               env.toAuth = env.ciphertext + "+" +  env.message.to + "+" + env.message.from + "+" + env.message.createdAt;
@@ -98,9 +97,9 @@
                   $scope.body = $scope.to = null;
                   env.foundUser = false;
                   $window.location.assign("http://localhost:3000/messages");
-                });
-            });  
-          }); 
+              });
+          });  
+        }); 
       };
       // Returns true or false whether user is found 
       this.userIsFound = function() {
