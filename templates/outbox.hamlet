@@ -1,12 +1,11 @@
 $if null entityMessages
-  <span .no-mesage> There are no messages in your inbox
+  <span .no-mesage> You haven't sent messages yet!
 $else
   <table>
-    $forall ((Entity _ message), (Entity _ sender))  <- entityMessages
+    $forall ((Entity _ message), (Entity _ dest))  <- entityMessages
       <tr>
         <td>
           <a href=@{ConversationR $ fromJust $ messageConversationWith message}>
-            #{userLogin sender}
+            #{userLogin dest}
         <td>
           #{show $ messageCreatedAt message}
-

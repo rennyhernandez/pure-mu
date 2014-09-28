@@ -1,9 +1,12 @@
-<table>
-  $forall ((Entity _ message), (Entity _ recipient))  <- entityMessages
-    <tr>
-      <td>
-        <a href=@{ConversationR $ fromJust $ messageConversationWith message}>
-          #{userLogin recipient}
-      <td>
-        #{show $ messageCreatedAt message}
+$if null entityMessages
+  <span .no-mesage> You haven't sent messages yet!
+$else
+  <table>
+    $forall ((Entity _ message), (Entity _ sender))  <- entityMessages
+      <tr>
+        <td>
+          <a href=@{ConversationR $ fromJust $ messageConversationWith message}>
+            #{userLogin sender}
+        <td>
+          #{show $ messageCreatedAt message}
 

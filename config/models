@@ -51,6 +51,7 @@ Message json
   media Media Maybe
   secretKey ByteString Maybe
   salt ByteString Maybe
+  authMessage ByteString Maybe
   deriving Typeable Show
 
 Media json

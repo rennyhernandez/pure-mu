@@ -7,13 +7,17 @@ $maybe (Entity loggedUserId loggedUser) <- muser
   <div #sidebar-wrapper>
     <ul .sidebar-nav> 
       <li>
-        <a href=@{ContactsR}> View Your Contacts
-      <li>
-        <a href=@{NewContactR}> Add Contact
-      <li>
         <a href=@{NewConversationR}> Create New Message
       <li>
-        <a href=@{MessagesR}> View Messages
+        <a href=@{MessagesR}> Inbox
+      <li>
+        <a href=@{SentMessagesR}> Sent Messages 
+      <li>
+        <a href=@{ContactsR}> Contacts
+      <li>
+        <a href=@{NewContactR}> Add Contact
+
+
 $nothing
   <div #topbar>
     <a href=@{AuthR LoginR}> Sign in 

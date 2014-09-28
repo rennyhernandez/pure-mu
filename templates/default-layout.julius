@@ -12,6 +12,7 @@
       env.now;
       env.foundUser = false;
       env.message;
+      
       // Gets user information from server
       this.getUserInfo = function(){
                $http.get('http://localhost:3000/api/user/fullinfo/' + $scope.to).success(function(data){                 
@@ -23,19 +24,14 @@
       //Sends an encrypted message
       this.saveMessage = function(){ 
         envsave = this;       
-
-        if (!env.user)
+        if (!env.user) // env.user is undefined (not fetched before using getUserInfo);
           {
-            $scope.to = $window.to
-            console.log($scope.to);
-            console.log($scope.body);
-
+            $scope.to = $window.to; 
             $http.get('http://localhost:3000/api/user/fullinfo/' + $scope.to).success(function(data){                 
-              env.user = data
+              env.user = data;
               env.foundUser = true;
               env.user;
               env.now = Date.now();
-              console.log(env.logged);
               env.message = { 
                             to: env.user.login,
                             from: env.logged, //TODO: change value with username in session
@@ -50,7 +46,6 @@
               env.foundUser = true;
               this.user;
               this.now = Date.now();
-              console.log(env.logged);
               env.message = { 
                             to: env.user.login,
                             from: env.logged, //TODO: change value with username in session
@@ -61,40 +56,47 @@
 
           }                              
           // Get destination public key
-          $http.get('http://localhost:3000/api/publickey/' + this.user.login).success(function(data){          
+          $http.get('http://localhost:3000/api/publickey/' + env.user.login).then(function(data){                        
+            //Retrieve public_n value, decode it from Base64 and create a new BigInt             
+            var jsn = forge.util.decode64(data.public_n);
+            var exponent = new forge.jsbn.BigInteger(data.public_e.toString(), 10);
+            var public_n = new forge.jsbn.BigInteger(jsn, 10);
+            //Recreate Public Key 
+            var destinationPublicKey = forge.pki.setRsaPublicKey(public_n, exponent);
+            //encrypt message ... 
+            env.ciphertext = destinationPublicKey.encrypt(forge.util.createBuffer(env.message.body).getBytes());
+            env.ciphertext64 = forge.util.encode64(env.ciphertext);
+            $http.get('http://localhost:3000/api/privatekey/' + env.logged).then(function(pkData){
+              //TODO:... then, sign. 
+              // Save message
+              env.toAuth = env.ciphertext + "+" +  env.message.to + "+" + env.message.from + "+" + env.message.createdAt;
+                    
+              var exponent = new forge.jsbn.BigInteger( pkData.private_pub.public_e.toString(), 10);
+              var private_d = new forge.jsbn.BigInteger(forge.util.decode64(pkData.private_d), 10);
+              var public_n = new forge.jsbn.BigInteger(forge.util.decode64(pkData.private_pub.public_n), 10);        
+              var private_key = forge.pki.setRsaPrivateKey(public_n, exponent, private_d);
               
-          //Retrieve public_n value, decode it from Base64 and create a new BigInt             
-
-          console.log('http://localhost:3000/api/publickey/' + env.user.login);
-          console.log(data);
-          var jsn = forge.util.decode64(data.public_n);
-          var exponent = new forge.jsbn.BigInteger(data.public_e.toString(), 10);
-          var public_n = new forge.jsbn.BigInteger(jsn, 10);
-          //Recreate Public Key 
-          var destinationPublicKey = forge.pki.setRsaPublicKey(public_n, exponent);
-
-          //encrypt message ... 
-          env.ciphertext = destinationPublicKey.encrypt(forge.util.createBuffer(env.message.body).getBytes());
-          env.toAuth = env.ciphertext + "+" +  env.message.to + "+" + env.message.from + "+" + env.message.createdAt;
-          env.ciphertext64 = forge.util.encode64(env.ciphertext);
-
-          //TODO:... then, sign. 
-          console.log(env.ciphertext64);
-          // Save message
-          this.datapacket = {
-                   to: env.user.login,
-                   from: env.logged, //TODO: change value with username in session
-                   body: env.ciphertext64,
-                   createdAt: env.message.createdAt,
-                   authMessage: env.toAuth //TODO: Authenticate this string
-          };
-          $http.get('http://localhost:3000/api/privatekey/' + env.logged).success(function(pkData){
-            $http.post('http://localhost:3000/api/message/send', this.datapacket).
-              success(function(data, status, headers, config) {
-                console.log(pkData);
-                env.messages.push(env.message);
-                $scope.body = $scope.to = null;
-                env.foundUser = false;
+              var public_key = forge.pki.setRsaPublicKey(public_n, exponent);
+              console.log(public_key);
+              console.log(env.message.body);
+              var copy = public_key.encrypt(forge.util.createBuffer(env.message.body).getBytes());
+              var copy64 = forge.util.encode64(copy);
+              
+              this.datapacket = {
+                       to: env.user.login,
+                       from: env.logged, //TODO: change value with username in session
+                       body: env.ciphertext64,
+                       copy: copy64,
+                       createdAt: env.message.createdAt,
+                       authMessage: env.toAuth //TODO: Authenticate this string
+              };
+              $http.post('http://localhost:3000/api/message/send', this.datapacket).
+                then(function(data, status, headers, config) {
+                  console.log(pkData);
+                  env.messages.push(env.message);
+                  $scope.body = $scope.to = null;
+                  env.foundUser = false;
+                  $window.location.assign("http://localhost:3000/messages");
               });
           });  
         }); 
@@ -107,6 +109,7 @@
   
 app.controller("DecryptController", ['$scope', '$http', function($scope, $http){
   var env = this;
+  env.user;
   env.loggedUser = "#{rawJS $ loggedUsername}"
   console.log(env.loggedUser);
   this.password;
@@ -119,6 +122,8 @@ app.controller("DecryptController", ['$scope', '$http', function($scope, $http){
 
     if($scope.password == "cambiame"){
       $http.get('http://localhost:3000/api/privatekey/' + env.loggedUser).success(function(data){
+      
+      
         var exponent = data.private_pub.public_e;
         var private_d = new forge.jsbn.BigInteger(forge.util.decode64(data.private_d), 10);
         var public_n = new forge.jsbn.BigInteger(forge.util.decode64(data.private_pub.public_n), 10);

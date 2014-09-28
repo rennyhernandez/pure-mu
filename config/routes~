@@ -6,6 +6,7 @@
 
 / HomeR GET 
 
+/sent/ SentMessagesR GET
 /messages/ MessagesR GET
 /message/#MessageId MessageR GET PUT DELETE
 /new/message/#UserId NewMessageR  POST

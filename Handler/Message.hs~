@@ -88,6 +88,7 @@ messageForm owner maybeRecipient extra = do
                                  <*> pure Nothing
                                  <*> secretKey
                                  <*> pure Nothing
+                                 <*> pure Nothing
           sessionUsername = userLogin userSession
           widget = $(widgetFile "message-form")
       return ((,) <$> messageRes <*> secretKey, widget)
@@ -153,7 +154,28 @@ getMessagesR = do
             addScript $ StaticR js_forge_forge_bundle_js
             addScript $ StaticR js_angular_js 
             $(widgetFile "inbox")
---          provideJson $ object [ ("action" :: Text) .= ("getMessages" :: Text)]
+          provideJson $ map (entityVal . fst) entityMessages
+
+getSentMessagesR :: Handler TypedContent
+getSentMessagesR = do 
+    mid <- maybeAuthId 
+    case mid of 
+      Nothing -> redirect HomeR
+      Just userId -> do
+        entityMessages <- runDB $ E.select $ 
+                        E.from $ \(message, destination) -> do 
+                        E.where_ (message  E.^. MessageOwner E.==. E.val userId E.&&.                                
+                                   message E.^. MessageSender E.==. message E.^.MessageOwner E.&&.
+                                   message E.^. MessageRecipient E.==. Just (destination E.^. UserId)
+                                   )
+                        E.orderBy [E.asc (message E.^. MessageCreatedAt)]
+                        return (message, destination)  
+        selectRep $ do 
+          provideRep $ defaultLayout $ do
+            addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+            addScript $ StaticR js_forge_forge_bundle_js
+            addScript $ StaticR js_angular_js 
+            $(widgetFile "outbox")
           provideJson $ map (entityVal . fst) entityMessages
 
 -- Handles new chat request
@@ -285,6 +307,7 @@ postMessageSendR = do
     --TODO: Refactor it and add exhaustive cases for each json value
       let (J.Success createdAtTS) =  J.fromJSON (jsonRes  ! "createdAt")  :: J.Result Integer
       let (J.Success body) =  J.fromJSON (jsonRes  ! "body")  :: J.Result ByteString
+      let (J.Success bodyCopy) =  J.fromJSON (jsonRes  ! "copy")  :: J.Result ByteString      
       let (J.Success to)  = J.fromJSON (jsonRes ! "to") :: J.Result Text
       let (J.Success from) =  J.fromJSON (jsonRes  ! "from")  :: J.Result Text
       let (J.Success authmessage) =  J.fromJSON (jsonRes  ! "authMessage")  :: J.Result Text
@@ -294,18 +317,20 @@ postMessageSendR = do
       let (Entity keyTo valueTo) = fromJust maybeUserTo
       let (Entity keyFrom valueFrom) = fromJust maybeUserFrom
     --TODO: Conversation must be created if not exist. Otherwise, fetch it and add key value to 
+
+    -- Chat information for the recipient
       maybeChat <- runDB $ getBy (UniqueChat keyTo keyFrom)
       chat <- case maybeChat of 
-        Just (Entity chatId _) -> return chatId 
- 
+        Just (Entity chatId _) -> return chatId
         Nothing -> do 
-          chatId <- runDB $ insert $ Chat { chatOwner = keyTo,
-                                             chatRecipient = keyTo,
+          chatId <- runDB $ insert $ Chat {  chatOwner = keyTo,
+                                             chatRecipient = keyFrom,
                                              chatIsNew = True,
                                              chatKey = Nothing,
                                              chatCreatedAt = parseJSTimestamp createdAtTS
                                              }
           return chatId      
+     -- Message for the recipient  
       let message = Message {
                           messageBody = Just body,
                           messageLength = BC.length body,
@@ -318,9 +343,35 @@ postMessageSendR = do
                           messageOwner = keyTo,
                           messageFromChat = Just chat,
                           messageSecretKey = Nothing,
-                          messageSalt = Nothing
+                          messageSalt = Nothing,
+                          messageAuthMessage = Nothing
                           }
+      -- Duplicate information for recipient
+      maybeRecipientChat <- runDB $ getBy (UniqueChat keyFrom keyTo)                          
+      recipientChat <- case maybeRecipientChat of 
+        Just (Entity chatId _) -> return chatId
+        Nothing -> do 
+          chatId <- runDB $ insert $ Chat {  chatOwner = keyFrom,
+                                             chatRecipient = keyTo,
+                                             chatIsNew = True,
+                                             chatKey = Nothing,
+                                             chatCreatedAt = parseJSTimestamp createdAtTS
+                                             }
+          return chatId                                
+      let duplicateMessage = message {  
+                                        messageBody = Just bodyCopy,
+                                        messageLength = BC.length bodyCopy, 
+                                        messageConversationWith = Just keyTo,
+                                        messageIsNew = True,
+                                        messageRecipient = Just keyTo,
+                                        messageSender = keyFrom,
+                                        messageOwner = keyFrom,
+                                        messageFromChat = Just recipientChat                                       
+                                        }
+      newCopyMess <- runDB $ insert duplicateMessage
       newMess <- runDB $ insert message
+      
+      -- Insert message duplicate for sender
       returnJson jsonRes
     J.Success _ -> error "unspecified datatype"
   

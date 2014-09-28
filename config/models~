@@ -38,7 +38,7 @@ Contact
  UniqueContact list contact
  deriving Typeable Show
     
-Message 
+Message json
   body ByteString Maybe
   length Int
   owner UserId 

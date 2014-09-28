@@ -18,8 +18,5 @@ getHomeR = do
     muser <- maybeAuth
     let submission = Nothing :: Maybe (FileInfo, Text)
         handlerName = "getHomeR" :: Text
-    defaultLayout $ do
-        aDomId <- newIdent
-        setTitle "Welcome To Pure Secure Messaging Service"
-        $(widgetFile "home")
+    defaultLayout $(widgetFile "home");
 

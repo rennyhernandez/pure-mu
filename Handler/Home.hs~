@@ -16,11 +16,7 @@ import Control.Monad (liftM)
 getHomeR :: Handler Html
 getHomeR = do
     muser <- maybeAuth
---    liftIO $ print $ liftM (userEmail . entityVal) $  muser
     let submission = Nothing :: Maybe (FileInfo, Text)
         handlerName = "getHomeR" :: Text
-    defaultLayout $ do
-        aDomId <- newIdent
-        setTitle "Welcome To Pure Secure Messaging Service"
-        $(widgetFile "home")
+    defaultLayout $ do $(widgetFile "home");
 
