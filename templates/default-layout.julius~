@@ -3,7 +3,7 @@
   app.controller("MainController", ['$scope','$http', '$window', function($scope, $http, $window){
 
       var env = this;
-      env.approot = 'http://192.168.1.107:3000';
+      env.approot = 'http://localhost:3000';
       $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
       this.messages = [];
       env.ciphertext;
@@ -97,7 +97,7 @@
                   env.messages.push(env.message);
                   $scope.body = $scope.to = null;
                   env.foundUser = false;
-                  $window.location.assign(this.approot + '/messages');
+                  $window.location.assign(env.approot + '/messages');
               });
           });  
         }); 

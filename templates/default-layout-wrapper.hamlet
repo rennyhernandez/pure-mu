@@ -9,9 +9,9 @@ $newline never
         <meta charset="UTF-8">
 
         <title>#{pageTitle pc}
-        <meta name="description" content="">
-        <meta name="author" content="">
-
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="A SaaS for secure IM">
+        <meta name="author" content="Renny A. Hernandez <rennyhernand@gmail.com">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         
 

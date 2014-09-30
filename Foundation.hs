@@ -102,9 +102,11 @@ instance Yesod App where
         -- TODO: Change page template whether user is logged
         pc <- widgetToPageContent $ do
             $(combineStylesheets 'StaticR
-                [ css_normalize_css
-                , css_bootstrap_css
-                , css_bootstrap_responsive_css
+                [ 
+--                css_normalize_css
+--                , css_bootstrap_css
+--                , css_bootstrap_responsive_css
+                  css_bootstrap_superhero_css
                 ])
             $(widgetFile "default-layout")
         giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
