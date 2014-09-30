@@ -1,0 +1,40 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+    <title>Hello Websockets</title>
+    <script type="text/javascript" charset="utf-8">
+        var ws = new WebSocket('ws://echo.websocket.org/');
+        
+        
+        ws.onopen = function(evt) 
+        {
+            console.log("Connection is being opened");
+        
+        };
+        
+        ws.onclose = function(evt)
+        {
+            console.log("Connection closed");
+        };
+        
+        ws.onmessage = function(evt)
+        {
+            console.log("Response:" + evt.data);
+        };
+        ws.onerror = function(evt)
+        {
+            console.log("There was an error processing the websocket connection");
+        };
+        ws.send('Hello, Websocket from Koding');  
+        ws.close();
+        
+        
+    </script>
+</head>
+<body>
+    <div>
+        
+    </div>
+</body>
+</html>
