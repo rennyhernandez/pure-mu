@@ -35,17 +35,18 @@
   
 
 .navbar
-  width: 980px
+  width: 100%
   text-align: right
   
 #page-content-wrapper 
   width: 100%
   padding: 45px
+  margin-left:200px
 
 .sidebar-nav
   position: absolute
   top: 25px
-  width: 250px
+  width: 150px
   margin: 0
   padding: 0
   list-style: none

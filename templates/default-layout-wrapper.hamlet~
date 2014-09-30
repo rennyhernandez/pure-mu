@@ -12,7 +12,7 @@ $newline never
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
         ^{pageHead pc}
 
@@ -24,7 +24,6 @@ $newline never
           document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
     <body>
         <div class="container">
-
           <div id="main" role="main">
             ^{pageBody pc}
           <footer>

@@ -16,7 +16,7 @@
 #sidebar-wrapper
   z-index: 1000
   position: fixed
-  width: 200px
+  width: 150px
   height: 100%
   left: 250px
   margin-left: -250px
@@ -41,11 +41,12 @@
 #page-content-wrapper 
   width: 100%
   padding: 45px
+  margin-left:200px
 
 .sidebar-nav
   position: absolute
   top: 25px
-  width: 250px
+  width: 150px
   margin: 0
   padding: 0
   list-style: none

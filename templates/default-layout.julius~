@@ -1,7 +1,9 @@
 (function(){
   var app = angular.module('pureApp',[]);
   app.controller("MainController", ['$scope','$http', '$window', function($scope, $http, $window){
+
       var env = this;
+      env.approot = 'http://192.168.1.107:3000';
       $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
       this.messages = [];
       env.ciphertext;
@@ -15,7 +17,7 @@
       
       // Gets user information from server
       this.getUserInfo = function(){
-               $http.get('http://localhost:3000/api/user/fullinfo/' + $scope.to).success(function(data){                 
+               $http.get(env.approot + '/api/user/fullinfo/' + $scope.to).success(function(data){                 
                env.user = data
                env.foundUser = true;
        });
@@ -23,11 +25,12 @@
       
       //Sends an encrypted message
       this.saveMessage = function(){ 
-        envsave = this;       
+
         if (!env.user) // env.user is undefined (not fetched before using getUserInfo);
           {
             $scope.to = $window.to; 
-            $http.get('http://localhost:3000/api/user/fullinfo/' + $scope.to).success(function(data){                 
+            console.log(env.approot);
+            $http.get(env.approot + '/api/user/fullinfo/' + $scope.to).success(function(data){                 
               env.user = data;
               env.foundUser = true;
               env.user;
@@ -56,7 +59,7 @@
 
           }                              
           // Get destination public key
-          $http.get('http://localhost:3000/api/publickey/' + env.user.login).success(function(data){                        
+          $http.get(env.approot + '/api/publickey/' + env.user.login).success(function(data){                        
             //Retrieve public_n value, decode it from Base64 and create a new BigInt             
             var jsn = forge.util.decode64(data.public_n);
             var exponent = new forge.jsbn.BigInteger(data.public_e.toString(), 10);
@@ -66,7 +69,7 @@
             //encrypt message ... 
             env.ciphertext = destinationPublicKey.encrypt(forge.util.createBuffer(env.message.body).getBytes());
             env.ciphertext64 = forge.util.encode64(env.ciphertext);
-            $http.get('http://localhost:3000/api/privatekey/' + env.logged).then(function(pkData){
+            $http.get(env.approot + '/api/privatekey/' + env.logged).success(function(pkData){
               //TODO:... then, sign. 
               // Save message
               env.toAuth = env.ciphertext + "+" +  env.message.to + "+" + env.message.from + "+" + env.message.createdAt;
@@ -77,8 +80,6 @@
               var private_key = forge.pki.setRsaPrivateKey(public_n, exponent, private_d);
               
               var public_key = forge.pki.setRsaPublicKey(public_n, exponent);
-              console.log(public_key);
-              console.log(env.message.body);
               var copy = public_key.encrypt(forge.util.createBuffer(env.message.body).getBytes());
               var copy64 = forge.util.encode64(copy);
               
@@ -90,13 +91,13 @@
                        createdAt: env.message.createdAt,
                        authMessage: env.toAuth //TODO: Authenticate this string
               };
-              $http.post('http://localhost:3000/api/message/send', this.datapacket).
+              $http.post(env.approot + '/api/message/send', this.datapacket).
                 then(function(data, status, headers, config) {
                   console.log(pkData);
                   env.messages.push(env.message);
                   $scope.body = $scope.to = null;
                   env.foundUser = false;
-                  $window.location.assign("http://localhost:3000/messages");
+                  $window.location.assign(this.approot + '/messages');
               });
           });  
         }); 
@@ -109,8 +110,9 @@
   
 app.controller("DecryptController", ['$scope', '$http', function($scope, $http){
   var env = this;
+  this.approot = 'http://192.168.1.107:3000';
   env.user;
-  env.loggedUser = "#{rawJS $ loggedUsername}"
+  this.loggedUser = "#{rawJS $ loggedUsername}"
   console.log(env.loggedUser);
   this.password;
   this.decryptMessage = function(){
@@ -121,7 +123,7 @@ app.controller("DecryptController", ['$scope', '$http', function($scope, $http){
     var messages = $(".message");
 
     if($scope.password == "cambiame"){
-      $http.get('http://localhost:3000/api/privatekey/' + env.loggedUser).success(function(data){
+      $http.get(env.approot + '/api/privatekey/' + env.loggedUser).success(function(data){
       
       
         var exponent = data.private_pub.public_e;
