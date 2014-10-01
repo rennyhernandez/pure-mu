@@ -11,7 +11,7 @@ $maybe (Entity loggedUserId loggedUser) <- muser
       <li>
         <a href=@{MessagesR}> Inbox
       <li>
-        <a href=@{SentMessagesR}> Inbox 
+        <a href=@{SentMessagesR}> Sent Messages 
       <li>
         <a href=@{ContactsR}> Contacts
       <li>

@@ -108,6 +108,12 @@ instance Yesod App where
 --                , css_bootstrap_responsive_css
                   css_bootstrap_superhero_css
                 ])
+            $(combineScripts 'StaticR
+              [
+                js_jquery_js,
+                js_bootstrap_js,
+                js_angular_js
+              ])
             $(widgetFile "default-layout")
         giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
 

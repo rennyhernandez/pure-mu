@@ -110,7 +110,7 @@
   
 app.controller("DecryptController", ['$scope', '$http', function($scope, $http){
   var env = this;
-  this.approot = 'http://192.168.1.107:3000';
+  this.approot = 'http://localhost:3000';
   env.user;
   this.loggedUser = "#{rawJS $ loggedUsername}"
   console.log(env.loggedUser);
