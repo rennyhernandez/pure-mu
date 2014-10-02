@@ -1,6 +1,4 @@
-
 $maybe msg <- mmsg
   <div #message>#{msg}      
 
-<div #page-content-wrapper>
-  ^{widget}
+^{widget}

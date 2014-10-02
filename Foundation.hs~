@@ -110,9 +110,9 @@ instance Yesod App where
                 ])
             $(combineScripts 'StaticR
               [
+                js_jquery_js,
                 js_bootstrap_js,
-                js_angular_js,
-                js_jquery_js
+                js_angular_js
               ])
             $(widgetFile "default-layout")
         giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
@@ -183,9 +183,13 @@ instance YesodAuth App where
                                             }
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins _ = [authHashDB (Just . UniqueUser) ]
+    authPlugins _ = [authHashDBWithForm myForm (Just . UniqueUser)]
 
+    
     authHttpManager = httpManager
+-- Form for User Login
+myForm :: Route App -> Widget
+myForm action = $(whamletFile "templates/login.hamlet")
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
