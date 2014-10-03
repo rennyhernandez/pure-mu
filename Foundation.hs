@@ -189,7 +189,7 @@ instance YesodAuth App where
     authHttpManager = httpManager
 -- Form for User Login
 myForm :: Route App -> Widget
-myForm action = $(whamletFile "templates/login.hamlet")
+myForm action = $(widgetFile "login")
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
