@@ -1,21 +1,8 @@
-<p> #{extra}
-<div>
-  <div>
+$maybe _ <- maybeRecipient
   
-  $maybe _ <- maybeRecipient
-    
-  $nothing      
-    <div>
-      To:
-      ^{fvInput recipientView}
-<div>
-  <div style="float:left">
-    Type here:
-  <div style="clear:both">        
-  <div style="float:left">
-    ^{fvInput bodyView}
-  <div style="clear:both">
-  <div style="float:left">
-    Encryption key (Optional)
-    ^{fvInput passView}
-    <input type="submit" value="Send">      
+$nothing
+
+  ^{fvInput recipientView}
+
+^{fvInput bodyView}
+<button type="submit" .btn .btn-default> Send

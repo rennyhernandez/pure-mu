@@ -9,16 +9,21 @@ $maybe Entity _ user <- muser
             #{userName contact} 
             <span style="color:grey"> (#{userLogin contact})
         <div float:right>
-         <a href=@{ConversationR contactId}> Write a message 
-         |
-         <a data-url=@{ContactR (userLogin contact)} class="delete" href=#> Delete
+        
+      <address>
+        <strong>#{userName contact}
+        <a href=@{ConversationR contactId}> Write a message 
+        |
+        <a data-url=@{ContactR (userLogin contact)} class="delete" href=#> Delete
+        <br>
+        <strong>#{userCountry contact}
+        <br>
+        <abbr title="Phone">Phone no.:
+        #{userPhoneNo contact}        
+        <br>
+        <a href="mailto:#">#{userEmail contact}
 
-      <ul>
-        <li> Country: #{userCountry contact}
-        <li> Phone No.: #{userPhoneNo contact}
-        <li> Email: #{userEmail contact}
            
          
         
-    
 

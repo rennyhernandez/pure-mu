@@ -2,25 +2,30 @@
   window.to = '#{userLogin recipient}'
 <div ng-controller="DecryptController as decrypt">
   $maybe recipient <- maybeRecipient
-    <h3> Chat with #{userLogin recipient}    
-    $if null conversation    
-      No messages here. Start chatting right now!
-    $else
-        $forall ((Entity _ message), (Entity _ sender)) <- conversation
-          <div .row>
-            <p .bg-info .bubble>
-              <b> From: #{userLogin sender} </br>
-              <span style="color:grey;">
-                (#{show $ messageCreatedAt message})
-              <span .message> #{BC.unpack $ fromJust $  messageBody message}
-        
-        <p>
-          <label for="passwd"> Password
-          <input id="passwd" type="password" ng-change="decrypt.isChanging()" ng-model="password"> 
-  <div ng-controller="MainController as compose">         
-    <form enctype=#{enctype} ng-submit="compose.saveMessage()"> 
-      <input type="hidden" ng-model="to" value="#{userLogin recipient}">   
-      ^{widget}
+  <div .container>
+    <div .row>
+      <input .form-control type="password" id="password" ng-change="decrypt.isChanging()" ng-model="password" placeholder="Type your password to decrypt messages">
+      <h3> Chat with #{userLogin recipient}    
+    <div .row>
+      $if null conversation    
+        No messages here. Start chatting right now!
+      $else
+
+          $forall ((Entity _ message), (Entity _ sender)) <- conversation
+            <div .row>
+              <p .bg-info .bubble .col-xs-10 .col-md-6>
+                <b> From: #{userLogin sender} </br>
+                <span style="color:grey;">
+                  (#{show $ messageCreatedAt message})
+                <span .message> #{BC.unpack $ fromJust $  messageBody message}
+   
+    <div ng-controller="MainController as compose">         
+      <nav .navbar-default .navbar-fixed-bottom role="navigation">
+        <div .container>
+
+          <form .navbar-form .navbar-right enctype=#{enctype} ng-submit="compose.saveMessage()"> 
+            <input type="hidden" ng-model="to" value="#{userLogin recipient}">   
+            ^{widget}
 
 
 

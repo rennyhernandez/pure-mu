@@ -32,9 +32,11 @@ $newline never
               <span .icon-bar>
               <span .icon-bar>
               <span .icon-bar>  
-          <div .nav .navbar-nav .nav-right>
-            <button .btn .btn-default .navbar-btn .btn-danger role="tab">
-                <span .glyphicon .glyphicon-pencil>                     
+            $maybe _ <- muser
+              <button .btn .btn-default .navbar-btn .btn-danger role="tab">
+                  <span .glyphicon .glyphicon-pencil>                     
+            $nothing
+              
           <div .collapse .navbar-collapse #navbar-content>                   
             $maybe (Entity loggedUserId loggedUser) <- muser
                 <ul .navbar-nav .nav>              

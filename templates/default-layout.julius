@@ -108,21 +108,21 @@
       };      
   }]);
   
-app.controller("DecryptController", ['$scope', '$http', function($scope, $http){
+app.controller("DecryptController", ['$scope','$rootScope', '$http', function($scope, $rootScope, $http){
   var env = this;
   this.approot = 'http://localhost:3000';
   env.user;
   this.loggedUser = "#{rawJS $ loggedUsername}"
-  console.log(env.loggedUser);
   this.password;
   this.decryptMessage = function(){
     console.log($(".message").html());
   };
   
   this.isChanging = function(){
+    console.log($scope.password);
     var messages = $(".message");
-
     if($scope.password == "cambiame"){
+    
       $http.get(env.approot + '/api/privatekey/' + env.loggedUser).success(function(data){
       
       
