@@ -36,21 +36,23 @@ messageForm owner maybeRecipient extra = do
   mu <- lift $ maybeAuth
   case mu of 
     Just (Entity _ userSession) -> do
-      (recipientRes, recipientView) <- mreq textField (FieldSettings { fsLabel = "Contacts", 
+      (recipientRes, recipientView) <- mreq textField (FieldSettings { 
+                fsLabel = "Contacts", 
                 fsTooltip = Nothing,
                 fsId = Nothing,
                 fsName = Nothing,
                 fsAttrs = [("ng-model","to"), 
                            ("ng-change","compose.getUserInfo()"), 
-                           ("ng-disabled","compose.userIsFound()")]
+                           ("ng-disabled","compose.userIsFound()"),
+                           ("class", "form-control"),
+                           ("placeholder", "Enter Recipient")]
                }) Nothing
-      (bodyRes, bodyView) <- mreq textareaField (FieldSettings { fsLabel = "Body", 
+      (bodyRes, bodyView) <- mreq textField (FieldSettings { 
+                fsLabel = "Body", 
                 fsTooltip = Nothing,
                 fsId = Nothing,
                 fsName = Nothing,
-                fsAttrs = [("ng-model","body"),                            
-                           ("rows","4"),
-                           ("cols","100")]
+                fsAttrs = [("ng-model","body"), ("class", "form-control"), ("placeholder", "Type your message")]
                }) Nothing
       (passRes, passView) <- mopt passwordField "Secret Key" Nothing
       -- evaluates if there is a recipient value from argument (the message form is being generated from a created conversation
@@ -74,8 +76,8 @@ messageForm owner maybeRecipient extra = do
       now  <- liftIO getCurrentTime
       salt <- liftIO $ generateSalt 32
       let secretKey  =  fmap (fmap ((\password -> (sha256PBKDF2 password salt 4 32))  . BC.pack . T.unpack)) passRes
-      let body =  fmap (Just . BC.pack . T.unpack . unTextarea) bodyRes
-      let length = fmap (T.length .  unTextarea)  bodyRes  --length Int 
+      let body =  fmap (Just . BC.pack . T.unpack) bodyRes
+      let length = fmap T.length bodyRes  --length Int 
       let messageRes = Message  <$>  body --body Text 
                                  <*> length --TODO: This must be a Maybe Value
                                  <*> pure owner -- owner UserId

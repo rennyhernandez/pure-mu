@@ -3,4 +3,17 @@
   width: 550px
   word-break: break-all
   
+.bubble 
+  position: relative
+  padding: 5px 5px 5px 5px
+  margin: 15px,
+  background: rgba(86,61,124,.15)
+  -webkit-border-radius: 0px
+  -moz-border-radius: 0px
+  border-radius: 0px
+  border: rgba(86,61,124,.12) solid 1px
+
+
+
+  
 

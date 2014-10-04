@@ -9,10 +9,11 @@ $newline never
         <meta charset="UTF-8">
 
         <title>#{pageTitle pc}
-        <meta name="description" content="">
-        <meta name="author" content="">
-
-        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="A SaaS for secure IM">
+        <meta name="author" content="Renny A. Hernandez <rennyhernand@gmail.com">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        
 
         ^{pageHead pc}
 
@@ -23,12 +24,50 @@ $newline never
         <script>
           document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
     <body>
-        <div class="container">
-          <div id="main" role="main">
-            ^{pageBody pc}
-          <footer>
-            #{extraCopyright $ appExtra $ settings master}
-
+      <nav .navbar .navbar-default role="navigation">
+        <div .container-fluid>
+          <div .navbar-header>
+            <button type="button" .navbar-toggle .collapsed data-toggle="collapse" data-target="#navbar-content">
+              <span .sr-only> Toggle Navigation
+              <span .icon-bar>
+              <span .icon-bar>
+              <span .icon-bar>  
+            $maybe _ <- muser
+              <button .btn .btn-default .navbar-btn .btn-danger role="tab">
+                  <span .glyphicon .glyphicon-pencil>                     
+            $nothing
+              
+          <div .collapse .navbar-collapse #navbar-content>                   
+            $maybe (Entity loggedUserId loggedUser) <- muser
+                <ul .navbar-nav .nav>              
+                  <li>
+                    <a href=@{MessagesR}> Inbox
+                  <li>
+                    <a href=@{SentMessagesR}> Sent
+                  <li>
+                    <a href=@{ContactsR}> Contacts
+                  <li>
+                    <a href=@{NewContactR}> Add Contact                    
+                <ul .nav .navbar-nav .navbar-right>
+                  <li class="dropdown"> 
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                      <span .glyphicon .glyphicon-user> 
+                      <span> #{userLogin loggedUser }              
+                      <span class="caret">
+                    <ul class="dropdown-menu" role="menu">
+                      <li>
+                        <a href=@{AuthR LogoutR}> 
+                          Sign Out
+            $nothing                
+                <ul .nav .navbar-nav .navbar-right>
+                  <li>
+                    <a href=@{AuthR LoginR}> Sign in 
+                  <li>
+                    <a href=@{SignUpR}> Sign Up
+      <div id="main" role="main" class="container">
+          ^{pageBody pc}
+      <footer>
+        #{extraCopyright $ appExtra $ settings master}
         $maybe analytics <- extraAnalytics $ appExtra $ settings master
             <script>
               if(!window.location.href.match(/localhost/)){

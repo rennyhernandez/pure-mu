@@ -10,7 +10,7 @@ User json
     phoneNo Text   
     createdAt UTCTime
     aeskey ByteString 
-    UniqueUser email
+    UniqueEmail email
     UniqueNumber phoneNo
     UniqueUsername login
     deriving Typeable Show
@@ -51,6 +51,7 @@ Message json
   media Media Maybe
   secretKey ByteString Maybe
   salt ByteString Maybe
+  authMessage ByteString Maybe
   deriving Typeable Show
 
 Media json
