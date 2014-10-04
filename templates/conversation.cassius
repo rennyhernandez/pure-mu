@@ -6,8 +6,7 @@
 .bubble 
   position: relative
   padding: 5px 5px 5px 5px
-  margin: 15px,
-  background: rgba(86,61,124,.15)
+  margin: 15px
   -webkit-border-radius: 0px
   -moz-border-radius: 0px
   border-radius: 0px
