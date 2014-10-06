@@ -83,7 +83,6 @@ instance Yesod App where
     makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
         (120 * 60) -- 120 minutes
         "config/client_session_key.aes"
-
     defaultLayout widget = do
         master <- getYesod
         mmsg <- getMessage
@@ -184,12 +183,12 @@ instance YesodAuth App where
 
     -- You can add other plugins like BrowserID, email or OAuth here
     authPlugins _ = [authHashDBWithForm myForm (Just . UniqueUser)]
-
-    
     authHttpManager = httpManager
--- Form for User Login
+    
+-- Custom Form for User Login
 myForm :: Route App -> Widget
 myForm action = $(widgetFile "login")
+
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
@@ -251,4 +250,5 @@ redirectError :: (RedirectUrl (HandlerSite m) url, MonadHandler m) => Text -> ur
 redirectError message url = do
    setMessage $ toHtml message
    redirect url
+
    

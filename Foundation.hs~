@@ -83,7 +83,6 @@ instance Yesod App where
     makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
         (120 * 60) -- 120 minutes
         "config/client_session_key.aes"
-
     defaultLayout widget = do
         master <- getYesod
         mmsg <- getMessage
@@ -187,9 +186,9 @@ instance YesodAuth App where
 
     
     authHttpManager = httpManager
--- Form for User Login
+-- Custom Form for User Login
 myForm :: Route App -> Widget
-myForm action = $(widgetFile "login.hamlet")
+myForm action = $(widgetFile "login")
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.

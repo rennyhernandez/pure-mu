@@ -1,4 +1,2 @@
 Messages
-<form method=post action=@{MessageR} enctype=#{enctype}>
-  ^{widget}               
-  <button>Submit
+^{widget}

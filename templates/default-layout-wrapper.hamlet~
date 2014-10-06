@@ -36,7 +36,7 @@ $newline never
               <button .btn .btn-default .navbar-btn .btn-danger role="tab">
                   <span .glyphicon .glyphicon-pencil>                     
             $nothing
-              
+              <span> SMSF
           <div .collapse .navbar-collapse #navbar-content>                   
             $maybe (Entity loggedUserId loggedUser) <- muser
                 <ul .navbar-nav .nav>              

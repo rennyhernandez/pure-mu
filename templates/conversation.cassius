@@ -13,6 +13,7 @@
   border: rgba(86,61,124,.12) solid 1px
 
 
-
+.chat-container
+  padding-bottom: 70px
   
 

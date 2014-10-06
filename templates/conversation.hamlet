@@ -2,7 +2,7 @@
   window.to = '#{userLogin recipient}'
 <div ng-controller="DecryptController as decrypt">
   $maybe recipient <- maybeRecipient
-    <div .container>
+    <div .container .chat-container>
       <div .row>
         <input .form-control type="password" id="password" ng-change="decrypt.isChanging()" ng-model="password" placeholder="Type your password to decrypt messages">
         <h3> Chat with #{userLogin recipient}    
@@ -10,22 +10,32 @@
         $if null conversation    
           No messages here. Start chatting right now!
         $else
-
-          $forall ((Entity _ message), (Entity _ sender)) <- conversation
+          $forall ((Entity _ message), (Entity senderId sender)) <- conversation
             <div .row>
-              <p .bg-info .bubble .col-xs-10 .col-md-6>
-                <b> From: #{userLogin sender} </br>
-                <span style="color:grey;">
-                  (#{show $ messageCreatedAt message})
-                <span .message> #{BC.unpack $ fromJust $  messageBody message}
+              $if senderId == userId
+                <p .bg-info .bubble .col-xs-10 .col-md-6 .pull-right>
+                  <b> From: #{userLogin sender}         
+                  <span style="color:grey;">
+                    (#{show $ messageCreatedAt message})
+                  <br>
+                  <span .message> #{BC.unpack $ fromJust $  messageBody message}
+              $else
+                <p .bg-info .bubble .col-xs-10 .col-md-6>                
+                  <b> From: #{userLogin sender}       
+                  <span style="color:grey;">
+                    (#{show $ messageCreatedAt message})
+                  <br>
+                  <span .message> #{BC.unpack $ fromJust $  messageBody message}
+
    
     <div ng-controller="MainController as compose">         
       <nav .navbar-default .navbar-fixed-bottom role="navigation">
         <div .container>
 
-          <form .navbar-form .navbar-right enctype=#{enctype} ng-submit="compose.saveMessage()"> 
+          <form .navbar-form .navbar-right enctype="application/x-www-form-urlencoded" ng-submit="compose.saveMessage()"> 
             <input type="hidden" ng-model="to" value="#{userLogin recipient}">   
-            ^{widget}
+            <input type="text" name="body" ng-model="body" .form-control placeholder="Type Your Message">
+            <button type="submit" .btn .btn-default> Send
 
 
 

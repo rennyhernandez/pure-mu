@@ -1,2 +1,7 @@
 body
   background-color: rgba(86,61,124,.12)
+
+main-container
+  padding-top: 70px
+  padding-bottom: 70px
+  

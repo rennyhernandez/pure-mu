@@ -9,7 +9,7 @@ import Yesod.Auth
 
 import Data.Time (getCurrentTime)
 import Data.Maybe (fromJust, fromMaybe)
-import qualified Data.Text as T (length, pack, unpack)
+import qualified Data.Text as T (length, pack, unpack, append)
 import Data.String (IsString)
 import Text.Julius (rawJS, toJavascript)
 import qualified Data.Aeson as J
@@ -30,81 +30,15 @@ import Crypto.PBKDF.ByteString (sha256PBKDF2)
 
 import Utils
 
--- Form widget to manipulate message creation from List Message User.
-messageForm :: UserId -> Maybe UserId -> Html -> MForm Handler (FormResult (Message, Maybe ByteString), Widget)
-messageForm owner maybeRecipient extra = do
-  mu <- lift $ maybeAuth
-  case mu of 
-    Just (Entity _ userSession) -> do
-      (recipientRes, recipientView) <- mreq textField (FieldSettings { 
-                fsLabel = "Contacts", 
-                fsTooltip = Nothing,
-                fsId = Nothing,
-                fsName = Nothing,
-                fsAttrs = [("ng-model","to"), 
-                           ("ng-change","compose.getUserInfo()"), 
-                           ("ng-disabled","compose.userIsFound()"),
-                           ("class", "form-control"),
-                           ("placeholder", "Enter Recipient")]
-               }) Nothing
-      (bodyRes, bodyView) <- mreq textField (FieldSettings { 
-                fsLabel = "Body", 
-                fsTooltip = Nothing,
-                fsId = Nothing,
-                fsName = Nothing,
-                fsAttrs = [("ng-model","body"), ("class", "form-control"), ("placeholder", "Type your message")]
-               }) Nothing
-      (passRes, passView) <- mopt passwordField "Secret Key" Nothing
-      -- evaluates if there is a recipient value from argument (the message form is being generated from a created conversation
-      recipient <- case maybeRecipient of 
-      -- if there is a value in the 'recipient' input field, it returns the value,  wrapped with Maybe and FormResult Functors. 
-        Just res -> return $ FormSuccess (Just res)
-      -- If there is nothing in the maybeRecipient (the conversation is new), it creates a new conversation with the intended recipient
-        Nothing -> do 
-          case recipientRes of   
-            FormSuccess rec -> do
-              rec' <- lift $ runDB $ getBy (UniqueUsername rec)
-              case rec' of 
-                Just rec'' -> return $ FormSuccess (Just $ entityKey rec'')
-                Nothing -> do
-                  setMessage $ toHtml ("User not Found" :: Text)
-                  redirect NewConversationR         
-            FormFailure _ -> do
-              setMessage $ toHtml ("User not Found" :: Text)
-              redirect NewConversationR
-            FormMissing -> return $ FormSuccess Nothing
-      now  <- liftIO getCurrentTime
-      salt <- liftIO $ generateSalt 32
-      let secretKey  =  fmap (fmap ((\password -> (sha256PBKDF2 password salt 4 32))  . BC.pack . T.unpack)) passRes
-      let body =  fmap (Just . BC.pack . T.unpack) bodyRes
-      let length = fmap T.length bodyRes  --length Int 
-      let messageRes = Message  <$>  body --body Text 
-                                 <*> length --TODO: This must be a Maybe Value
-                                 <*> pure owner -- owner UserId
-                                 <*> recipient -- conversationWith UserId Maybe
-                                 <*> pure owner -- sender UserId  
-                                 <*> recipient  --recipient Maybe UserId 
-                                 <*> pure now --createdAt UTCTime
-                                 <*> pure True -- isNew
-                                 <*> pure Nothing
-                                 <*> pure Nothing
-                                 <*> secretKey
-                                 <*> pure Nothing
-                                 <*> pure Nothing
-          sessionUsername = userLogin userSession
-          widget = $(widgetFile "message-form")
-      return ((,) <$> messageRes <*> secretKey, widget)
-    Nothing -> error "Cannot send message right now"
-
 
 
 getConversationR :: UserId -> Handler Html 
 getConversationR recipientId = do
-  mu <- maybeAuthId 
+  mu <- maybeAuth
   case mu of
-    Just userId -> do
+    Just (Entity userId _) -> do
       maybeRecipient <- runDB $ get recipientId 
-      case maybeRecipient of 
+      case maybeRecipient of     
         Just recipient -> do
           conversation <- runDB $ E.select $ 
                           E.from $ \(message, sender) -> do 
@@ -113,11 +47,10 @@ getConversationR recipientId = do
                                      message E.^. MessageSender E.==. sender E.^. UserId)
                           E.orderBy [E.asc (message E.^. MessageCreatedAt)]
                           return (message, sender)               
-          (widget, enctype) <- generateFormPost $ messageForm userId (Just recipientId)
-          defaultLayout $ do 
-            addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+          defaultLayout $ do
+            setTitle $ toHtml $ "Chat with "  `T.append` (userLogin recipient)
             addScript $ StaticR js_forge_forge_bundle_js 
-            addScript $ StaticR js_angular_js         
+            addScript $ StaticR js_angular_js                     
             $(widgetFile "conversation")             
         Nothing -> redirectError "You cannot contact this user right now" MessagesR
     Nothing -> redirect MessagesR
@@ -130,8 +63,13 @@ getMessageR messageId = do
   case mu of
     Nothing -> error "Error while opening logged user"
     Just userId -> do 
-      (widget, enctype) <- generateFormPost $ messageForm  userId Nothing
-      defaultLayout $(widgetFile "message")
+      maybeMessage <- runDB $ get messageId
+      case maybeMessage of 
+        Just message -> do
+          let maybeRecipient = messageRecipient message        
+              widget = $(widgetFile "message-form")
+          defaultLayout $(widgetFile "message")
+        Nothing -> redirectError  "Can't find message" MessagesR
       
 
 
@@ -187,98 +125,16 @@ getNewConversationR = do
   muser <- maybeAuthId
   case muser of 
     Just userId -> do  
-      (widget, enctype) <- generateFormPost $ messageForm userId Nothing
+      let maybeRecipient = Nothing
       defaultLayout $ do 
         addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
         addScript $ StaticR js_forge_forge_bundle_js
         addScript $ StaticR js_angular_js 
-        --addScript $ StaticR js_controllers_app_js  
         $(widgetFile "compose") 
-         
     Nothing  -> do
       setMessage $ toHtml ("Please, sign in to your account" :: Text)
       redirect HomeR      
-      
--- Creates a new message and conversation (conversation has many messages)
-postNewConversationR :: Handler Html
-postNewConversationR = do 
-  mu <- maybeAuthId 
-  case mu of 
-    Just user -> do 
-      ((res, widget), enctype)  <- runFormPost $ messageForm user Nothing
-      case res of 
-        FormSuccess (messageRes, _) -> do
-          let newChat = Chat {       chatOwner = user, 
-                                      chatRecipient = fromJust $ messageRecipient messageRes,  
-                                      chatKey = Nothing, -- Pass in ByteString
-                                      chatCreatedAt = messageCreatedAt messageRes,
-                                      chatIsNew = True
-                                     }
-          maybeChat <- runDB $ getBy $ UniqueChat user (chatRecipient newChat)
-          (newChatId, newChatIdDup) <- case maybeChat of 
-            Nothing  -> runDB $ do 
-              newChatId <- insert newChat
-              newChatIdDup <- insert $ newChat { 
-                                            chatOwner = fromJust $ messageRecipient messageRes, 
-                                            chatRecipient = user  
-                                          }
-              return (newChatId, newChatIdDup)
-            Just chat -> do
-              maybeDup <- runDB $ getBy $ UniqueChat (chatRecipient newChat) user
-              case maybeDup of 
-                Nothing ->  error "Unexpected Error while retrieving chat information"
-                Just dup -> return (entityKey chat, entityKey dup)
-          _ <- runDB $ insert $ messageRes {
-                                            messageMedia = Nothing,
-                                            messageFromChat = Just newChatId
-                                            }
-          _ <- runDB $ insert $ messageRes { 
-                                                                                        
-                                            messageOwner = fromJust $ messageRecipient messageRes,
-                                            messageConversationWith = Just $ messageOwner messageRes,
-                                            messageMedia = Nothing,
-                                            messageFromChat = Just newChatIdDup
-                                            }
-          redirect (ConversationR $ fromJust $ messageRecipient messageRes)
-        _              -> do
-          setMessage $ toHtml ("There's been an error while sending your message. Please, try again" :: Text)
-          redirect NewConversationR
-                          
-    Nothing -> do 
-      setMessage $ toHtml ("Please, sign in to your account" :: Text)
-      redirect HomeR     
-
-      
-postNewMessageR :: UserId -> Handler Html
-postNewMessageR recipient = do 
-  mu <- maybeAuthId 
-  case mu of 
-    Just user -> do 
-      ((res, widget), enctype)  <- runFormPost $ messageForm user (Just recipient)
-      case res of 
-        FormSuccess (messageRes, passRes) -> do
-          chatId <- runDB $ getBy $ UniqueChat user recipient
-          chatIdDup <- runDB $ getBy $ UniqueChat recipient user
-          _ <- runDB $ insert $ messageRes {
-                                            messageMedia = Nothing,
-                                            messageFromChat =fmap entityKey chatId 
-                                            }
-          _ <- runDB $ insert $ messageRes { 
-                                            messageOwner = fromJust $ messageRecipient messageRes,
-                                            messageConversationWith = Just $ messageOwner messageRes,
-                                            messageMedia = Nothing,
-                                            messageFromChat = fmap entityKey chatIdDup
-                                            }
---          (widget, enctype) <- generateFormPost $ messageForm user
-          redirect (ConversationR $ fromJust $ messageRecipient messageRes)
-        _              -> do
-          setMessage $ toHtml ("There's been an error while sending your message. Please, try again" :: Text)
-          redirect NewConversationR
-                          
-    Nothing -> do 
-      setMessage $ toHtml ("Please, sign in to your account" :: Text)
-      redirect HomeR     
-
+                                 
 generateSalt :: Int -> IO ByteString
 generateSalt byteSize = do 
   g <- newGenIO :: IO SystemRandom

@@ -39,6 +39,8 @@
   left: -16px
   top: 45px
 
+.chat-container
+  padding-bottom: 70px
 
   
 

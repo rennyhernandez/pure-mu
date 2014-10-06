@@ -1,9 +1,4 @@
-<div class="form-group">
-  $maybe _ <- maybeRecipient
-    
-  $nothing
+$maybe _ <- maybeRecipient
+  
+$nothing
 
-    ^{fvInput recipientView}
-
-  ^{fvInput bodyView}
-  <button type="submit" .btn .btn-default> Send
