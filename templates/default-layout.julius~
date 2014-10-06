@@ -119,7 +119,7 @@ app.controller("DecryptController", ['$scope','$rootScope', '$http', function($s
   };
   
   this.isChanging = function(){
-    console.log($rootScope.password);
+    console.log($scope.password);
     var messages = $(".message");
     if($scope.password == "cambiame"){
     
@@ -142,6 +142,15 @@ app.controller("DecryptController", ['$scope','$rootScope', '$http', function($s
     }
    
   };
+}]);
+
+app.controller("NavigationController", ['$scope','$http','$window', function($scope, $http, $window){
+  this.approot = 'http://localhost:3000';  
+  this.newChat = function(){
+    $window.location.assign(env.approot + '/new/conversation');
+  };
+
+
 }]);
     
     

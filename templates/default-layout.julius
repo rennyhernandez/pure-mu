@@ -143,6 +143,15 @@ app.controller("DecryptController", ['$scope','$rootScope', '$http', function($s
    
   };
 }]);
+
+app.controller("NavigationController", ['$scope','$http','$window', function($scope, $http, $window){
+  this.approot = 'http://localhost:3000';  
+  this.newChat = function(){
+    $window.location.assign(this.approot + '/new/conversation');
+  };
+
+
+}]);
     
     
 })();
