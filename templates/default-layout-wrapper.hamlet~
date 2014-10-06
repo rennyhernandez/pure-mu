@@ -33,7 +33,8 @@ $newline never
               <span .icon-bar>
               <span .icon-bar>  
             $maybe _ <- muser
-              <button .btn .btn-default .navbar-btn .btn-danger role="tab">
+              <div ng-controller="NavigationController as nav">
+              <button .btn .btn-default .navbar-btn .btn-danger role="tab" ng-click="nav.newChat()">
                   <span .glyphicon .glyphicon-pencil>                     
             $nothing
               <span> SMSF
