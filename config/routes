@@ -9,7 +9,8 @@
 /sent SentMessagesR GET
 /messages/ MessagesR GET
 /message/#MessageId MessageR GET PUT DELETE
-/conversation/#UserId ConversationR GET 
+/conversation/#UserId ConversationR GET
+/new/conversation/ NewConversationR GET
 
 
 
