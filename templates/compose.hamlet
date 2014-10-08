@@ -1,6 +1,6 @@
 <div ng-controller="MainController as compose">
   <div .row>
-    <h1> Create New Message
+    <h3> Create New Message
   <div .row>
   <div id="status" ng-show="compose.userIsFound()">
    Sending message to: {{compose.user.login}}

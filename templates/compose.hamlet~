@@ -6,5 +6,7 @@
    Sending message to: {{compose.user.login}}
   <div id="message-list">
   <form enctype="application/x-www-form-urlencoded" ng-submit="compose.saveMessage()" role="form">
-    ^{widget}               
+    <input type="text" name="recipient" ng-model="to" ng-change="compose.getUserInfo()" ng-disabled="compose.userIsFound()" .form-control placeholder="Enter Recipient">
+    <input type="text" name="body" ng-model="body" .form-control placeholder="Type Your Message">
+    <button type="submit" .btn .btn-default> Send             
 

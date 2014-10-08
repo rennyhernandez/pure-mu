@@ -2,11 +2,8 @@
   var app = angular.module('pureApp',[]);
   app.controller("MainController", ['$scope','$http', '$window', function($scope, $http, $window){
 
-      var env = this;
-<<<<<<< HEAD
-//      env.approot = 'http://192.168.1.107:3000';
-=======
->>>>>>> add_responsive
+      var env = this; // hack to allow access to controller variables into $http ajax callbacks
+
       env.approot = 'http://localhost:3000';
       $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
       this.messages = [];
@@ -33,7 +30,6 @@
         if (!env.user) // env.user is undefined (not fetched before using getUserInfo);
           {
             $scope.to = $window.to; 
-            console.log(env.approot);
             $http.get(env.approot + '/api/user/fullinfo/' + $scope.to).success(function(data){                 
               env.user = data;
               env.foundUser = true;
@@ -75,7 +71,7 @@
             env.ciphertext64 = forge.util.encode64(env.ciphertext);
             $http.get(env.approot + '/api/privatekey/' + env.logged).success(function(pkData){
               //TODO:... then, sign. 
-              // Save message
+              
               env.toAuth = env.ciphertext + "+" +  env.message.to + "+" + env.message.from + "+" + env.message.createdAt;
                     
               var exponent = new forge.jsbn.BigInteger( pkData.private_pub.public_e.toString(), 10);
@@ -85,19 +81,24 @@
               
               var public_key = forge.pki.setRsaPublicKey(public_n, exponent);
               var copy = public_key.encrypt(forge.util.createBuffer(env.message.body).getBytes());
-              var copy64 = forge.util.encode64(copy);
+               
+              // sign data with a private key (defaults to RSASSA PKCS#1 v1.5)
+              var md = forge.md.sha256.create();
+              md.update(env.toAuth, 'utf8');
+              var signature = private_key.sign(md);
+
               
               this.datapacket = {
                        to: env.user.login,
                        from: env.logged, //TODO: change value with username in session
                        body: env.ciphertext64,
-                       copy: copy64,
+                       copy: forge.util.encode64(copy),
                        createdAt: env.message.createdAt,
-                       authMessage: env.toAuth //TODO: Authenticate this string
+                       authMessage: forge.util.encode64(md), //TODO: Authenticate this string
+                       signature: forge.util.encode64(signature)
               };
               $http.post(env.approot + '/api/message/send', this.datapacket).
-                then(function(data, status, headers, config) {
-                  console.log(pkData);
+                success(function(data, status, headers, config) {
                   env.messages.push(env.message);
                   $scope.body = $scope.to = null;
                   env.foundUser = false;
@@ -151,7 +152,7 @@ app.controller("DecryptController", ['$scope','$rootScope', '$http', function($s
 app.controller("NavigationController", ['$scope','$http','$window', function($scope, $http, $window){
   this.approot = 'http://localhost:3000';  
   this.newChat = function(){
-    $window.location.assign(env.approot + '/new/conversation');
+    $window.location.assign(this.approot + '/new/conversation');
   };
 
 
