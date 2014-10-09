@@ -5,9 +5,7 @@
     <div .container .chat-container>
       <div .row>
         <input .form-control type="password" id="password" ng-change="decrypt.isChanging()" ng-model="password" placeholder="Type your password to decrypt messages">
-        <h3> Chat with #{userLogin recipient}   
-        $maybe convo <- lookupSession "convo"
-          <h2> 
+        <h3> Chat with #{userLogin recipient}    
       <div .row>
         $if null conversation    
           No messages here. Start chatting right now!
@@ -34,9 +32,10 @@
       <nav .navbar-default .navbar-fixed-bottom role="navigation">
         <div .container>
 
-          <form .navbar-form .navbar-right enctype="application/x-www-form-urlencoded" ng-submit="compose.saveMessage()"> 
-            <input type="hidden" ng-model="to" value="#{userLogin recipient}">   
-            <input type="text" name="body" ng-model="body" .form-control placeholder="Type Your Message">
+          <form .navbar-form .navbar-right enctype="application/x-www-form-urlencoded" ng-submit="compose.saveMessage()">                      
+            <input type="hidden" ng-model="compose.to" value="#{userLogin recipient}">   
+            <input type="file" .form-control ng-model="compose.file">            
+            <input type="text" name="body" ng-model="compose.body" .form-control placeholder="Type Your Message">
             <button type="submit" .btn .btn-default> Send
 
 

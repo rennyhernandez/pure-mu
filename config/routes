@@ -22,7 +22,7 @@
 /api/privatekey/#Text PrivateKeyR GET
 /api/message/send/ MessageSendR POST
 /api/contactlist/#UserId FullContactListR GET
-
+/api/message/request MessageRequestR GET
 
 /users/ UsersR GET
 /user/#UserId UserR GET DELETE

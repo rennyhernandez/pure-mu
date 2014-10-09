@@ -13,7 +13,7 @@ import qualified Data.Text as T (length, pack, unpack, append)
 import Data.String (IsString)
 import Text.Julius (rawJS, toJavascript)
 import qualified Data.Aeson as J
-import Data.HashMap.Strict ((!))
+import Data.HashMap.Strict ((!), fromList)
 import Data.Aeson.Types (parse)
 
 
@@ -112,7 +112,6 @@ getSentMessagesR = do
                         return (message, destination)  
         selectRep $ do 
           provideRep $ defaultLayout $ do
-            addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
             addScript $ StaticR js_forge_forge_bundle_js
             addScript $ StaticR js_angular_js 
             $(widgetFile "outbox")
@@ -202,7 +201,8 @@ postMessageSendR = do
                           messageFromChat = Just chat,
                           messageSecretKey = Nothing,
                           messageSalt = Nothing,
-                          messageAuthMessage = Nothing
+                          messageAuthMessage = Nothing,
+                          messageStatus = "Validated" -- TODO: Change when dealing with message lifecycle
                           }
       -- Duplicate information for recipient
       maybeRecipientChat <- runDB $ getBy (UniqueChat keyFrom keyTo)                          
@@ -224,16 +224,26 @@ postMessageSendR = do
                                         messageRecipient = Just keyTo,
                                         messageSender = keyFrom,
                                         messageOwner = keyFrom,
-                                        messageFromChat = Just recipientChat                                       
+                                        messageFromChat = Just
+                                        recipientChat                                       
                                         }
-      newCopyMess <- runDB $ insert duplicateMessage
+      newCopyMess <- runDB $ insert duplicateMessage -- message must be duplicated using sender's private key 
       newMess <- runDB $ insert message
       
-      -- Insert message duplicate for sender
       returnJson jsonRes
     J.Success _ -> error "unspecified datatype"
-  
 
+-- creates a new nonce and seqid for the message to be created
+getMessageRequestR :: Handler Value
+getMessageRequestR = do
+  mid <- maybeAuthId
+  case mid of
+    Just _ -> do 
+      nonce <- liftIO $ generateSalt 32
+      returnJson $ fromList [("nonce" :: Text, B64.encode nonce)]
+    Nothing -> do
+      returnJson ("Unathorized" :: Text)
+    
 putMessageR :: MessageId -> Handler Html
 putMessageR _ = error "Not implemented yet"
 
