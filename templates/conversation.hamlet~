@@ -33,9 +33,10 @@
         <div .container>
 
           <form .navbar-form .navbar-right enctype="application/x-www-form-urlencoded" ng-submit="compose.saveMessage()">                      
-            <input type="hidden" ng-model="compose.to" value="#{userLogin recipient}">   
-            <input type="file" .form-control ng-model="compose.file">            
-            <input type="text" name="body" ng-model="compose.body" .form-control placeholder="Type Your Message">
+            <input type="hidden" ng-model="to" value="#{userLogin recipient}">   
+            <button .btn .btn-default type="button" .button ng-file-select="onFileSelect($files)" data-multiple="true">
+              <span .glyphicon .glyphicon-paperclip>
+            <input type="text" name="body" ng-model="body" .form-control placeholder="Type Your Message">
             <button type="submit" .btn .btn-default> Send
 
 

@@ -94,7 +94,7 @@ getMessagesR = do
             addScript $ StaticR js_forge_forge_bundle_js
             addScript $ StaticR js_angular_js 
             $(widgetFile "inbox")
-          provideJson $ map (entityVal . fst) entityMessages
+          provideJson $ map fst entityMessages
 
 getSentMessagesR :: Handler TypedContent
 getSentMessagesR = do 
@@ -115,7 +115,7 @@ getSentMessagesR = do
             addScript $ StaticR js_forge_forge_bundle_js
             addScript $ StaticR js_angular_js 
             $(widgetFile "outbox")
-          provideJson $ map (entityVal . fst) entityMessages
+          provideJson $ map fst entityMessages
 
 -- Handles new chat request
 
@@ -161,6 +161,7 @@ postMessageSendR = do
   case maybeValue of
     J.Error s -> error "Could not parse json body" --TODO: set errors when defined 
     J.Success (J.Object jsonRes) -> do 
+      liftIO $ print jsonRes
     --TODO: Refactor it and add exhaustive cases for each json value
       let (J.Success createdAtTS) =  J.fromJSON (jsonRes  ! "createdAt")  :: J.Result Integer
       let (J.Success body) =  J.fromJSON (jsonRes  ! "body")  :: J.Result ByteString
@@ -168,12 +169,25 @@ postMessageSendR = do
       let (J.Success to)  = J.fromJSON (jsonRes ! "to") :: J.Result Text
       let (J.Success from) =  J.fromJSON (jsonRes  ! "from")  :: J.Result Text
       let (J.Success authmessage) =  J.fromJSON (jsonRes  ! "authMessage")  :: J.Result Text
+      let (J.Success fileType) =  J.fromJSON (jsonRes  ! "fileType")  :: J.Result Text
+      let (J.Success fileSize) =  J.fromJSON (jsonRes  ! "fileSize")  :: J.Result Text
+      maybeFile = J.fromJSON (jsonRes ! "fileContent") :: J.Result Text
+      file <- do 
+        case maybeFile of 
+          J.Success file <- Just file
+          J.Error _ <- Nothing
       maybeUserTo <- runDB $ getBy (UniqueUsername to)
       maybeUserFrom <- runDB $ getBy (UniqueUsername from)
     --TODO: Same as before, this must be refactored and cases must be taken in account      
       let (Entity keyTo valueTo) = fromJust maybeUserTo
       let (Entity keyFrom valueFrom) = fromJust maybeUserFrom
     --TODO: Conversation must be created if not exist. Otherwise, fetch it and add key value to 
+
+    -- Message Attachment must be stored twice (original and duplicate for the sender)
+    
+    -- Attachment is created and inserted if filecontent request parameter is not null
+
+
 
     -- Chat information for the recipient
       maybeChat <- runDB $ getBy (UniqueChat keyTo keyFrom)
@@ -227,7 +241,9 @@ postMessageSendR = do
                                         messageFromChat = Just
                                         recipientChat                                       
                                         }
-      newCopyMess <- runDB $ insert duplicateMessage       -- Insert message duplicate for sender
+                                        
+                                        
+      newCopyMess <- runDB $ insert duplicateMessage -- message must be duplicated using sender's private key 
       newMess <- runDB $ insert message
       
       returnJson jsonRes

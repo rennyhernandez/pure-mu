@@ -33,12 +33,11 @@ List
 Contact
  list ListId
  contact UserId 
--- lastModified UTCTime
  createdAt UTCTime
  UniqueContact list contact
  deriving Typeable Show
     
-Message json
+Message
   body ByteString Maybe
   length Int
   owner UserId 
@@ -56,8 +55,12 @@ Message json
   deriving Typeable Show
 
 Media json
-  contentType Text
+  type Text
+  name Text 
+  size Int 
   content ByteString
+
+
   deriving Typeable Show
   
 Chat 

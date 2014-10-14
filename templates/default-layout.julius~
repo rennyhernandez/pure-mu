@@ -1,6 +1,9 @@
 (function(){
-  var app = angular.module('pureApp',[]);
-  app.controller("MainController", ['$scope','$http', '$window', function($scope, $http, $window){
+
+  var app = angular.module('pureApp',['angularFileUpload']);
+  
+  
+  app.controller("MainController", ['$scope','$http', '$window', '$upload', function($scope, $http, $window, $upload){
 
       var env = this; // hack to allow access to controller variables inside $http ajax callbacks
       
@@ -11,7 +14,8 @@
       env.user;
       env.logged = "#{rawJS $ loggedUsername}"
       env.destinationPublicKey; 
-      env.file;
+      env.fileType;
+      env.fileContent;
       env.pkint;
       env.now;
       env.foundUser = false;
@@ -83,30 +87,31 @@
                 var exponent = new forge.jsbn.BigInteger( pkData.private_pub.public_e.toString(), 10);
                 var private_d = new forge.jsbn.BigInteger(forge.util.decode64(pkData.private_d), 10);
                 var public_n = new forge.jsbn.BigInteger(forge.util.decode64(pkData.private_pub.public_n), 10);        
-                var private_key = forge.pki.setRsaPrivateKey(public_n, exponent, private_d);
-                
+                var private_key = forge.pki.setRsaPrivateKey(public_n, exponent, private_d);                
                 var public_key = forge.pki.setRsaPublicKey(public_n, exponent);
                 var copy = public_key.encrypt(forge.util.createBuffer(env.message.body).getBytes());
-                 
+                var md = forge.md.sha256.create();                 
                 // sign data with a private key (defaults to RSASSA PKCS#1 v1.5)
-                var md = forge.md.sha256.create();
                 md.update(env.toAuth, 'utf8');
-                var signature = private_key.sign(md);
-                console.log($scope);
+                var signature = private_key.sign(md);                                
                 this.datapacket = {
                          to: env.user.login,
                          from: env.logged, //TODO: change value with username in session
                          body: env.ciphertext64,
-                         file: $scope.file,
+                         fileType: env.fileType,
+                         fileSize: env.fileSize,
+                         fileContent: env.fileContent,
                          copy: forge.util.encode64(copy),
                          createdAt: env.message.createdAt,
                          authMessage: forge.util.encode64(md), //TODO: Authenticate this string
                          signature: forge.util.encode64(signature)
                 };
+                console.log(datapacket);                
+                
                 $http.post(env.approot + 'api/message/send', this.datapacket).
                   success(function(data, status, headers, config) {
                     env.messages.push(env.message);
-                    $scope.body = $scope.to =  $scope.file = null ;
+                    $scope.body = $scope.to =  $scope.fileread = null ;
                     env.foundUser = false;
 //                    $window.location.assign(env.approot + 'messages');
                 });
@@ -118,6 +123,25 @@
       this.userIsFound = function() {
         return(this.foundUser);
       };      
+      
+      
+    // Functions needed for file uploading
+    $scope.onFileSelect = function($files) {
+    //$files: an array of files selected, each file has name, size, and type.
+      var file = $files[0];
+      var reader = new FileReader();
+      env.fileType = file.type;
+      env.fileSize = file.size;
+      
+      reader.onload = function(file){
+        env.fileContent = file.target.result;  
+      };
+      reader.readAsDataURL(file);
+
+
+      console.debug(env.fileType);
+      console.debug(env.fileContent);
+    };
   }]);
   
 app.controller("DecryptController", ['$scope','$rootScope', '$http', function($scope, $rootScope, $http){
@@ -153,15 +177,14 @@ app.controller("DecryptController", ['$scope','$rootScope', '$http', function($s
   };
 }]);
 
-app.controller("NavigationController", ['$scope','$http','$window', function($scope, $http, $window){
-  this.approot = 'http://localhost:3000/';  
-  this.newChat = function(){
-    $window.location.assign(this.approot + 'new/conversation');
-  };
+  app.controller("NavigationController", ['$scope','$http','$window', function($scope, $http, $window){
+    this.approot = 'http://localhost:3000/';  
+    this.newChat = function(){
+      $window.location.assign(this.approot + 'new/conversation');
+    };
 
 
-}]);
-    
+  }]);
     
 })();
 

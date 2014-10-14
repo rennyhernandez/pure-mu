@@ -83,6 +83,10 @@ instance Yesod App where
     makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
         (120 * 60) -- 120 minutes
         "config/client_session_key.aes"
+        
+    maximumContentLength _ (Just MessageSendR) = Just (10 * 1024 * 1024) -- 10 megabytes
+    maximumContentLength _ _ = Just 1024 -- 1 megabyte
+
     defaultLayout widget = do
         master <- getYesod
         mmsg <- getMessage
@@ -111,7 +115,9 @@ instance Yesod App where
               [
                 js_jquery_js,
                 js_bootstrap_js,
-                js_angular_js
+                js_angular_file_upload_shim_js,
+                js_angular_js,
+                js_angular_file_upload_js
               ])
             $(widgetFile "default-layout")
         giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
@@ -146,7 +152,8 @@ instance Yesod App where
         development || level == LevelWarn || level == LevelError
 
     makeLogger = return . appLogger
-
+    
+   
 -- How to run database actions.
 instance YesodPersist App where
     type YesodPersistBackend App = SqlPersistT
@@ -234,6 +241,14 @@ instance ToJSON User where
       "member_since" .= userCreatedAt
     ]
 -}
+
+instance ToJSON (Entity Message) where
+  toJSON (Entity id value) = object
+    [
+      "id" .= id,
+      "body" .= messageBody value,
+      "length" .= messageLength value   
+    ]
 instance ToJSON List where
   toJSON List {..} = object
     [ "user_id" .= listOwner,
