@@ -11,7 +11,7 @@ import Data.Time (getCurrentTime)
 import Data.Maybe (fromJust, fromMaybe)
 import qualified Data.Text as T (length, pack, unpack, append)
 import Data.String (IsString)
-import Text.Julius (rawJS, toJavascript)
+import Text.Julius (rawJS, toJavascript, ToJavascript(..))
 import qualified Data.Aeson as J
 import Data.HashMap.Strict ((!), fromList)
 import Data.Aeson.Types (parse)
@@ -46,7 +46,7 @@ getConversationR recipientId = do
                                      message E.^. MessageConversationWith E.==.  E.just (E.val recipientId) E.&&. 
                                      message E.^. MessageSender E.==. sender E.^. UserId)
                           E.orderBy [E.asc (message E.^. MessageCreatedAt)]
-                          return (message, sender)               
+                          return (message, sender)                         
           defaultLayout $ do
             setTitle $ toHtml $ "Chat with "  `T.append` (userLogin recipient)
             addScript $ StaticR js_forge_forge_bundle_js 
@@ -161,7 +161,6 @@ postMessageSendR = do
   case maybeValue of
     J.Error s -> error "Could not parse json body" --TODO: set errors when defined 
     J.Success (J.Object jsonRes) -> do 
-      liftIO $ print jsonRes
     --TODO: Refactor it and add exhaustive cases for each json value
       let (J.Success createdAtTS) =  J.fromJSON (jsonRes  ! "createdAt")  :: J.Result Integer
       let (J.Success body) =  J.fromJSON (jsonRes  ! "body")  :: J.Result ByteString
@@ -241,12 +240,9 @@ postMessageSendR = do
                                         messageOwner = keyFrom,
                                         messageFromChat = Just
                                         recipientChat                                       
-                                        }
-                                        
-                                        
+                                        }                                                                    
       newCopyMess <- runDB $ insert duplicateMessage -- message must be duplicated using sender's private key 
-      newMess <- runDB $ insert message
-      
+      newMess <- runDB $ insert message      
       returnJson jsonRes
     J.Success _ -> error "unspecified datatype"
 

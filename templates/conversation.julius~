@@ -1,1 +1,1 @@
-  window.to = '#{rawJS $ userLogin recipient}'
+window.destinationLogin = "#{String $ userLogin recipient}";

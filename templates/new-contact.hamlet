@@ -10,7 +10,7 @@ $maybe (Entity id user) <- userRes
     
     
 <h3> Search Contact by:
-<form method=post action=@{NewContactR}#form enctype=#{formEnctype}>
+<form  method=post action=@{NewContactR}#form enctype=#{formEnctype}>
   ^{formWidget}
   <input type="submit" value="Search">
 

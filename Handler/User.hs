@@ -25,9 +25,8 @@ getUserR :: UserId -> Handler Html
 getUserR userId = do
   (user, keyring) <- runDB $ do
     user <- get404 userId
-    keyring <- selectList [KeyringOwner ==. userId] [LimitTo 1]
+    keyring <- selectList [KeyringOwner ==. userId] [LimitTo 1] -- TODO: Refactor 
     return (user, entityVal $ head keyring)
-  liftIO $ print $ B.length $ userAeskey user
   defaultLayout $ do 
     $(widgetFile "user")
 
@@ -74,9 +73,9 @@ userForm  extra  = do
   (countryRes, countryView) <- mreq textField "Country" Nothing  
   (phoneNoRes, phoneNoView) <- mreq textField "Phone No." Nothing  
   passwd <- do
-   case passwordRes of 
+   case passwordRes of  -- FormResult
     FormSuccess pass -> do 
-      pass' <- liftIO $ makePassword  ((BC.pack . T.unpack) pass) 14
+      pass' <- liftIO $ makePassword  ((BC.pack . T.unpack) pass) 14 --PBKDF2 
       return $ (T.pack . BC.unpack) pass'     
     _ -> return "" 
   createdAt <- liftIO  getCurrentTime

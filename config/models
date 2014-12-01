@@ -58,8 +58,6 @@ Media json
   type Text
   size Int 
   content ByteString
-
-
   deriving Typeable Show
   
 Chat 

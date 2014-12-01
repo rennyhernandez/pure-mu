@@ -56,7 +56,6 @@ Message
 
 Media json
   type Text
-  name Text 
   size Int 
   content ByteString
 

@@ -1,7 +1,10 @@
 $if null entityMessages
-  <span .no-mesage> You haven't sent messages yet!
+  <span .no-mesage> There are no messages in your inbox
 $else
-  <table>
+  <table  .table .table-striped>
+    <tr>
+      <th> User
+      <th> Date
     $forall ((Entity _ message), (Entity _ sender))  <- entityMessages
       <tr>
         <td>

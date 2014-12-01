@@ -71,6 +71,8 @@
             var public_n = new forge.jsbn.BigInteger(jsn, 10);
             //Recreate Public Key 
             var destinationPublicKey = forge.pki.setRsaPublicKey(public_n, exponent);
+            
+            
             //encrypt message ... 
             env.ciphertext = destinationPublicKey.encrypt(forge.util.createBuffer(env.message.body).getBytes());
             env.ciphertext64 = forge.util.encode64(env.ciphertext);
@@ -86,11 +88,14 @@
                       
                 var exponent = new forge.jsbn.BigInteger( pkData.private_pub.public_e.toString(), 10);
                 var private_d = new forge.jsbn.BigInteger(forge.util.decode64(pkData.private_d), 10);
-                var public_n = new forge.jsbn.BigInteger(forge.util.decode64(pkData.private_pub.public_n), 10);        
+                var public_n = new forge.jsbn.BigInteger(forge.util.decode64(pkData.private_pub.public_n), 10);     
+                   
                 var private_key = forge.pki.setRsaPrivateKey(public_n, exponent, private_d);                
                 var public_key = forge.pki.setRsaPublicKey(public_n, exponent);
+                // Create encrypted copy for origin 
                 var copy = public_key.encrypt(forge.util.createBuffer(env.message.body).getBytes());
                 var md = forge.md.sha256.create();                 
+                
                 // sign data with a private key (defaults to RSASSA PKCS#1 v1.5)
                 md.update(env.toAuth, 'utf8');
                 var signature = private_key.sign(md);                                
@@ -106,7 +111,6 @@
                          authMessage: forge.util.encode64(md), //TODO: Authenticate this string
                          signature: forge.util.encode64(signature)
                 };
-                console.log(datapacket);                
                 
                 $http.post(env.approot + 'api/message/send', this.datapacket).
                   success(function(data, status, headers, config) {
@@ -144,31 +148,35 @@
     };
   }]);
   
-app.controller("DecryptController", ['$scope','$rootScope', '$http', function($scope, $rootScope, $http){
+app.controller("DecryptController", ['$scope','$rootScope', '$http', '$window', function($scope, $rootScope, $http, $window){
   var env = this;
   this.approot = 'http://localhost:3000/';
   env.user;
   this.loggedUser = "#{rawJS $ loggedUsername}"
   this.password;
+
+  
+  
   this.decryptMessage = function(){
     console.log($(".message").html());
   };
-  
+  //Receives a password, if it is correct, it deciphers and verifies messages from a sender.
+ 
   this.isChanging = function(){
-    console.log($scope.password);
     var messages = $(".message");
-    if($scope.password == "cambiame"){
-    
+    if($scope.password == "cambiame"){ // TODO: verify if password is correct and then decrypt private key with it
       $http.get(env.approot + 'api/privatekey/' + env.loggedUser).success(function(data){      
         var exponent = data.private_pub.public_e;
         var private_d = new forge.jsbn.BigInteger(forge.util.decode64(data.private_d), 10);
         var public_n = new forge.jsbn.BigInteger(forge.util.decode64(data.private_pub.public_n), 10);        
         var private_key = forge.pki.setRsaPrivateKey(public_n, exponent, private_d);
-        
-        messages.each(function(){
-          var ciphertext = forge.util.decode64($(this).html());
-          var deciphered = private_key.decrypt(ciphertext);
-          $(this).text(deciphered);
+        $http.get(env.approot + 'api/publickey/' + env.loggedUser).success(function(data){      
+          messages.each(function(){
+            console.log(this);
+            var ciphertext = forge.util.decode64($(this).html());
+            var deciphered = private_key.decrypt(ciphertext);
+            $(this).text(deciphered);
+          });
         });
       });
  

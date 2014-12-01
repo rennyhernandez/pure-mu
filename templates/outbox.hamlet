@@ -1,7 +1,10 @@
 $if null entityMessages
   <span .no-mesage> You haven't sent messages yet!
 $else
-  <table>
+  <table .table .table-striped>
+    <tr>
+      <th> To:
+      <th> Date:
     $forall ((Entity _ message), (Entity _ dest))  <- entityMessages
       <tr>
         <td>

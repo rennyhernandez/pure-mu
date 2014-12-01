@@ -5,12 +5,12 @@ $maybe (Entity id user) <- userRes
       <li> Login Name: #{userLogin user}
       <li> E-Mail: #{userEmail user}
       <li> Member Since: #{show $ userCreatedAt user}
-  <form method=post action=@{AddContactR id} enctype=#{formEnctype}>
+  <form method=post action=@{AddContactR (userLogin user)} enctype=#{formEnctype}>
     <input type="submit" value="Add Contact">
     
     
 <h3> Search Contact by:
-<form method=post action=@{NewContactR}#form enctype=#{formEnctype}>
+<form .form-control method=post action=@{NewContactR}#form enctype=#{formEnctype}>
   ^{formWidget}
   <input type="submit" value="Search">
 

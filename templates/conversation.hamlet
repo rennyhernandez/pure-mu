@@ -10,13 +10,13 @@
         $if null conversation    
           No messages here. Start chatting right now!
         $else
-          $forall ((Entity _ message), (Entity senderId sender)) <- conversation
+          $forall ((Entity _ message), (Entity senderId sender)) <- conversation        
             <div .row>
               $if senderId == userId
                 <p .bg-info .bubble .col-xs-10 .col-md-6 .pull-right>
                   <b> From: #{userLogin sender}         
                   <span style="color:grey;">
-                    (#{show $ messageCreatedAt message})
+                    (#{show $ messageCreatedAt message})                    
                   <br>
                   <span .message> #{BC.unpack $ fromJust $  messageBody message}
               $else
