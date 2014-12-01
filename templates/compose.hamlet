@@ -1,12 +1,13 @@
 <div ng-controller="MainController as compose">
   <div .row>
-    <h3> Create New Message
+    <h3> Compose Message
   <div .row>
   <div id="status" ng-show="compose.userIsFound()">
    Sending message to: {{compose.user.login}}
   <div id="message-list">
-  <form enctype="application/x-www-form-urlencoded" ng-submit="compose.saveMessage()" role="form">
-    <input type="text" name="recipient" ng-model="to" ng-change="compose.getUserInfo()" ng-disabled="compose.userIsFound()" .form-control placeholder="Enter Recipient">
+  <form .form-horizontal enctype="application/x-www-form-urlencoded" ng-submit="compose.saveMessage()" role="form">
+    <label for="recipient"> To:
+    <input type="text" id="to" name="recipient" ng-model="to" ng-change="compose.getUserInfo()" ng-disabled="compose.userIsFound()" .form-control placeholder="Enter Recipient">
     <input type="text" name="body" ng-model="body" .form-control placeholder="Type Your Message">
-    <button type="submit" .btn .btn-default> Send             
+    <button type="submit" .btn .btn-primary> Send             
 
