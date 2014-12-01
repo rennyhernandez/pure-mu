@@ -1,7 +1,0 @@
-<p> #{extra}
-  <div>
-    <div>
-       Body:
-    <div>
-      ^{fvInput bodyView}
-      <input type="submit" value="Send">

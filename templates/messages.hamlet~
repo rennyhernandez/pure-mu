@@ -1,8 +1,0 @@
-$if null messages
-  Messages not found
-$else
-  $forall message <- conversation
-    <h3> From: #{show $ messageRecipient message}
-    <p> #{show $ messageCreatedAt message}
-  
-  

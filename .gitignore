@@ -8,9 +8,10 @@ config/client_session_key.aes
 .hsenv*
 cabal-dev/
 yesod-devel/
-config/mysql.yml
+config/mysql.yml  
 .cabal-sandbox
 cabal.sandbox.config
 .DS_Store
 *.swp
-*.*~
+
+*~
