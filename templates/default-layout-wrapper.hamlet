@@ -37,7 +37,7 @@ $newline never
                 <button .btn .btn-default .navbar-btn .btn-primary role="tab" ng-click="nav.newChat()">
                     <span .glyphicon .glyphicon-pencil>                     
             $nothing
-              <span> SMSF
+              <h3> Pure Messaging Service
           <div .collapse .navbar-collapse #navbar-content>                   
             $maybe (Entity loggedUserId loggedUser) <- muser
                 <ul .navbar-nav .nav>              

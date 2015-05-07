@@ -3,3 +3,5 @@
   <input name="username" type="email" .form-control placeholder="Email address" required autofocus>
   <input type="password" name="password" .form-control placeholder="Password" required>
   <button .btn .bt-lg .btn-primary .btn-block type="submit"> Login
+  <div> 
+    <a href=""> Forgot your password?
