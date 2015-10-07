@@ -1,3 +1,32 @@
-<form method=post .form-signin action=@{SignUpR} enctype=#{enctype}>
-  ^{widget}               
+<form method=post .form-signin action=@{SignUpR}>
+  <div>
+    <div>
+      Email:
+    <div>
+      <input type="email" name="email"/>
+  <div>
+    <div>
+       Username:
+    <div>
+      <input type="text" name="username"/>                   
+  <div>
+    <div>
+       Password:
+    <div>
+      <input type="password" name="password"/>             
+  <div>
+    <div>
+       Name:
+     <div>
+      <input type="name" name="name"/>
+  <div>
+    <div>
+      Country:
+    <div>
+      <input type="text" name="country"/>
+  <div>
+    <div>
+      Phone Number
+    <div>
+      <input type="text" name="phone"/>       
   <button>Sign Up!

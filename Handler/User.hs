@@ -51,27 +51,33 @@ getSignUpR = do
   mu <- maybeAuthId
   case mu of 
     Nothing -> do
-      (widget, enctype) <- generateFormPost userForm 
       defaultLayout $ do 
         setTitle "Pure :: Create Account"
         $(widgetFile "signup")
     Just _ -> redirect HomeR
 
+postSignUpR :: Handler Html
+postSignUpR = do
+  now <- liftIO $ getCurrentTime
+  aesKey <- liftIO $ generateAESKey
+  let password = ireq passwordField "password" 
+  user <- runInputPost $ User <$> ireq textField "username"
+                              <*> ireq textField "email"
+                              <*> password
+                              <*> pure ""
+                              <*> pure "verkey"
+                              <*> pure False
+                              <*> ireq textField "email"
+                              <*> ireq textField "country"
+                              <*> ireq textField "phone"
+                              <*> pure now
+                              <*> pure aesKey
+  defaultLayout [whamlet| <p> #{show user} |]
   
+{-
 userForm :: Html ->  MForm Handler (FormResult User, Widget)
 userForm  extra  = do 
-  (usernameRes, usernameView) <- mreq textField FieldSettings
-    { fsLabel = "Login"
-    , fsTooltip = Nothing
-    , fsId = Nothing
-    , fsName = Nothing
-    , fsAttrs = []
-    } Nothing
-  (emailRes, emailView) <- mreq emailField "Email" Nothing
-  (passwordRes, passwordView) <- mreq passwordField "Password" Nothing
-  (nameRes, nameView) <- mreq textField "Name" Nothing
-  (countryRes, countryView) <- mreq textField "Country" Nothing  
-  (phoneNoRes, phoneNoView) <- mreq textField "Phone No." Nothing  
+ 
   passwd <- do
    case passwordRes of  -- FormResult
     FormSuccess pass -> do 
@@ -81,7 +87,7 @@ userForm  extra  = do
   createdAt <- liftIO  getCurrentTime
   aesKey <- liftIO generateAESKey
 --  let textSalt =  (T.pack . BC.unpack)  $ exportSalt salt -- ^ salt
-  let userRes = User <$> usernameRes
+    userRes <- runInputGet $ User <$> usernameRes
                       <*> emailRes
                       <*> pure passwd 
 --                    <*> pure generateSalt
@@ -100,17 +106,28 @@ userForm  extra  = do
 postSignUpR :: Handler Html
 postSignUpR = do 
   muser <- maybeAuth
-  ((res, userWidget), enctype) <- runFormPost userForm
+  
+  userRes <- runInputGet $ User <$> usernameRes
+                      <*> emailRes
+                      <*> pure passwd 
+--                    <*> pure generateSalt
+                      <*> pure ""
+                      <*> pure "verkey"
+                      <*> pure False
+                      <*> nameRes
+                      <*> countryRes
+                      <*> phoneNoRes
+                      <*> pure createdAt
+                      <*> pure aesKey
   case res of 
      FormSuccess userRes -> do      
-       userId <- runDB $ insert userRes
-       now <- liftIO $ getCurrentTime
-       contactList <- runDB $ insert $ List { listOwner = userId, 
+       userId <- runDB $ insert userRes -- Insert User
+       now <- liftIO $ getCurrentTime 
+       contactList <- runDB $ insert $ List { listOwner = userId, -- Create Contact List
                                                listCreatedAt = now,
                                                listLastUpdated = now
                                              }
-       (pubk, pvtk, _) <- liftIO $ genUserKeyring
-       liftIO $ print $ pvtk
+       (pubk, pvtk, _) <- liftIO $ genUserKeyring --Generate User Keyring for encryption
        let pubkey = T.pack $ BCL.unpack $ BIN.encode pubk
        let pvtkey = T.pack $ BCL.unpack $ BIN.encode pvtk
        _ <- runDB $ insert $ Keyring pubkey pvtkey "" userId
@@ -121,7 +138,7 @@ postSignUpR = do
      _ -> do 
              defaultLayout $ do 
               [whamlet|<p> Otherwise |]
-   
+-}
 getPublicKeyR :: Text -> Handler Value
 getPublicKeyR username = do 
   pubkeys <- runDB $ SQL.select $ 
