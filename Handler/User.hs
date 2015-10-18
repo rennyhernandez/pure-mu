@@ -62,18 +62,29 @@ postSignUpR = do
   aesKey <- liftIO $ generateAESKey
   let password = ireq passwordField "password" 
   user <- runInputPost $ User <$> ireq textField "username"
-                              <*> ireq textField "email"
-                              <*> password
-                              <*> pure ""
-                              <*> pure "verkey"
-                              <*> pure False
-                              <*> ireq textField "email"
-                              <*> ireq textField "country"
-                              <*> ireq textField "phone"
-                              <*> pure now
-                              <*> pure aesKey
-  defaultLayout [whamlet| <p> #{show user} |]
-  
+                            <*> ireq textField "email"
+                            <*> password
+                            <*> pure ""
+                            <*> pure "verkey"
+                            <*> pure False
+                            <*> ireq textField "name"
+                            <*> ireq textField "country"
+                            <*> ireq textField "phone"
+                            <*> pure now
+                            <*> pure aesKey
+  --defaultLayout [whamlet| <p> #{show user} |]     
+  userId <- runDB $ insert user -- Insert User
+  now <- liftIO $ getCurrentTime 
+  contactList <- runDB $ insert $ List { listOwner = userId, -- Create Contact List
+                                         listCreatedAt = now,
+                                         listLastUpdated = now
+                                       }
+  (pubk, pvtk, _) <- liftIO $ genUserKeyring --Generate User Keyring for encryption
+  let pubkey = T.pack $ BCL.unpack $ BIN.encode pubk
+  let pvtkey = T.pack $ BCL.unpack $ BIN.encode pvtk
+  _ <- runDB $ insert $ Keyring pubkey pvtkey "" userId
+  redirect $ UserR userId       
+    
 {-
 userForm :: Html ->  MForm Handler (FormResult User, Widget)
 userForm  extra  = do 

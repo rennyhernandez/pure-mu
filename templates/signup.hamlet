@@ -1,32 +1,10 @@
-<form method=post .form-signin action=@{SignUpR}>
-  <div>
-    <div>
-      Email:
-    <div>
-      <input type="email" name="email"/>
-  <div>
-    <div>
-       Username:
-    <div>
-      <input type="text" name="username"/>                   
-  <div>
-    <div>
-       Password:
-    <div>
-      <input type="password" name="password"/>             
-  <div>
-    <div>
-       Name:
-     <div>
-      <input type="name" name="name"/>
-  <div>
-    <div>
-      Country:
-    <div>
-      <input type="text" name="country"/>
-  <div>
-    <div>
-      Phone Number
-    <div>
-      <input type="text" name="phone"/>       
-  <button>Sign Up!
+<form method="post" .form-signin action=@{SignUpR} role="form">
+  <h2 .form-signin-heading> SignUp for Pure
+  <input type="email" name="email" placeholder="Email address" .form-control required autofocus>
+  <input type="text" name="username" placeholder="Username" .form-control required>                   
+  <input type="password" name="password" placeholder="Password" .form-control required>             
+  <input type="password" name="repassword" placeholder="Confirm Password" .form-control>
+  <input type="name" name="name" placeholder="Full Name" .form-control required>
+  <input type="text" name="country" placeholder="Country" .form-control required>
+  <input type="phone" name="phone" placeholder="Phone Number" .form-control required>       
+  <button .btn .bt-lg .btn-primary .btn-block type="submit"> Register
