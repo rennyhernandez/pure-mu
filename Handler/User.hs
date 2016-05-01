@@ -71,8 +71,7 @@ postSignUpR = do
                             <*> ireq textField "country"
                             <*> ireq textField "phone"
                             <*> pure now
-                            <*> pure aesKey
-  --defaultLayout [whamlet| <p> #{show user} |]     
+                            <*> pure aesKey   
   userId <- runDB $ insert user -- Insert User
   now <- liftIO $ getCurrentTime 
   contactList <- runDB $ insert $ List { listOwner = userId, -- Create Contact List
@@ -83,73 +82,8 @@ postSignUpR = do
   let pubkey = T.pack $ BCL.unpack $ BIN.encode pubk
   let pvtkey = T.pack $ BCL.unpack $ BIN.encode pvtk
   _ <- runDB $ insert $ Keyring pubkey pvtkey "" userId
-  redirect $ UserR userId       
-    
-{-
-userForm :: Html ->  MForm Handler (FormResult User, Widget)
-userForm  extra  = do 
- 
-  passwd <- do
-   case passwordRes of  -- FormResult
-    FormSuccess pass -> do 
-      pass' <- liftIO $ makePassword  ((BC.pack . T.unpack) pass) 14 --PBKDF2 
-      return $ (T.pack . BC.unpack) pass'     
-    _ -> return "" 
-  createdAt <- liftIO  getCurrentTime
-  aesKey <- liftIO generateAESKey
---  let textSalt =  (T.pack . BC.unpack)  $ exportSalt salt -- ^ salt
-    userRes <- runInputGet $ User <$> usernameRes
-                      <*> emailRes
-                      <*> pure passwd 
---                    <*> pure generateSalt
-                      <*> pure ""
-                      <*> pure "verkey"
-                      <*> pure False
-                      <*> nameRes
-                      <*> countryRes
-                      <*> phoneNoRes
-                      <*> pure createdAt
-                      <*> pure aesKey
-      widget = $(widgetFile "user-form")
-  return (userRes, widget)
-
-
-postSignUpR :: Handler Html
-postSignUpR = do 
-  muser <- maybeAuth
+  redirect $ LoginR     
   
-  userRes <- runInputGet $ User <$> usernameRes
-                      <*> emailRes
-                      <*> pure passwd 
---                    <*> pure generateSalt
-                      <*> pure ""
-                      <*> pure "verkey"
-                      <*> pure False
-                      <*> nameRes
-                      <*> countryRes
-                      <*> phoneNoRes
-                      <*> pure createdAt
-                      <*> pure aesKey
-  case res of 
-     FormSuccess userRes -> do      
-       userId <- runDB $ insert userRes -- Insert User
-       now <- liftIO $ getCurrentTime 
-       contactList <- runDB $ insert $ List { listOwner = userId, -- Create Contact List
-                                               listCreatedAt = now,
-                                               listLastUpdated = now
-                                             }
-       (pubk, pvtk, _) <- liftIO $ genUserKeyring --Generate User Keyring for encryption
-       let pubkey = T.pack $ BCL.unpack $ BIN.encode pubk
-       let pvtkey = T.pack $ BCL.unpack $ BIN.encode pvtk
-       _ <- runDB $ insert $ Keyring pubkey pvtkey "" userId
-       redirect $ UserR userId       
-     FormFailure errors -> do
-          defaultLayout $ do 
-             $(widgetFile "home")
-     _ -> do 
-             defaultLayout $ do 
-              [whamlet|<p> Otherwise |]
--}
 getPublicKeyR :: Text -> Handler Value
 getPublicKeyR username = do 
   pubkeys <- runDB $ SQL.select $ 
